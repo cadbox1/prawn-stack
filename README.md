@@ -9,23 +9,24 @@
 
 ## Scripts
 
- * `yarn build`                                     build the frontend so it's ready to deploy
- * `yarn test`                                      perform the jest unit tests
- * `yarn deploy --profile account-name`             build the frontend and deploy the cdk stack
- * `yarn cdk bootstrap --profile account-name`      prepare the AWS region for cdk deployments
- * `yarn cdk destroy --profile account-name`        destroy the deployment
+- `yarn build` build the frontend so it's ready to deploy
+- `yarn test` perform the jest unit tests
+- `yarn deploy --profile account-name` build the frontend and deploy the cdk stack
+- `yarn cdk bootstrap --profile account-name` prepare the AWS region for cdk deployments
+- `yarn cdk destroy --profile account-name` destroy the deployment
 
 ## First Deploy
+
 1. Create an [AWS account](https://aws.amazon.com/).
 1. Enable MFA on your Root account.
 1. Create an IAM user with programmtic access and assign the FullAdministratorAccess permission.
 1. Download the credentials.
 1. Setup your credentials with `vi ~/.aws/credentials`.
-    ```
-    [account-name]
-    aws_access_key_id=
-    aws_secret_access_key=
-    ```
+   ```
+   [account-name]
+   aws_access_key_id=
+   aws_secret_access_key=
+   ```
 1. Run `yarn` to install dependencies.
 1. Set the region in `bin/lambda-cdk.ts`.
 1. Run `yarn cdk bootstrap --profile account-name`.
@@ -40,9 +41,10 @@ yarn deploy --profile account-name
 And you can destroy a deployment with:
 
 ```
-yarn destroy --profile account-name
+yarn cdk destroy --profile account-name
 ```
-## Accessing the Database
+
+## Accessing the RDS Database
 
 You'll need to do this to setup the database initially.
 
@@ -52,22 +54,38 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 1. Login to AWS then go to the AWS Secret Manager for the credentials.
 1. Enter them into [PgAdmin](https://www.pgadmin.org/).
 
-## Adding a Route
+## Accessing the local database
 
-We currently use express for local development which calls the functions that will be deployed to Lambda with a bit of translation in between.
+1. Make sure you're docker containers are up.
+   ```
+   docker-compose up
+   ```
+1. Go to [http://localhost:5050/](http://localhost:5050/).
+1. Login with:
+   - **Email:** pgadmin4@pgadmin.org
+   - **Password:** admin
+1. Click Add New Server.
+1. Fill in the local server details.
+   - General
+     - **Name:** local
+   - Connection
+     - **Host:** postgres
+     - **Username:** postgres
+     - **Password:** changeme
+     - **Save password?:** yes
 
-Unfortunately that means new routes need to be defined in two places; in CDK for API Gateway and in Express for local development.
+### Setup a new database
 
-1. Add the route to `server.ts`.
-2. Add the route to `lambda-cdk.ts`.
+1. Expand Servers, local, Databases.
+1. Right-Click on Databases and create a new one called app.
 
-We can probably create an abstraction for this later on.
+### Query the database
+
+1. Right-Click on the app database then select Query Tool.
 
 ## Roadmap
 
-1. Setup a local postgres database using docker and connect to it.
-1. Connect to RDS when deployed to Lambda.
-1. Create a page view counter.
+1. Setup pageViews in deployed environment.
 1. Setup the frontend again.
 
 ### Ideas
@@ -81,6 +99,14 @@ We can probably create an abstraction for this later on.
 1. [Tune](https://www.jeremydaly.com/manage-rds-connections-aws-lambda/) the RDS connection settings for Serverless.
 1. Set a maximum Lambda concurrency.
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
+1. Explain provisioned concurrency.
+
+### Done.
+
+1. Deploy a cdk stack with RDS and Lambda.
+1. Setup Express to call the same handler as Lambda.
+1. Setup serverless-express to make routing conistent for local and deployed environments.
+1. Setup pageViews with local postgres database.
 
 ## Related Projects
 
@@ -89,3 +115,5 @@ We can probably create an abstraction for this later on.
 - [cadbox1/node-api-2020](https://github.com/cadbox1/node-api-2020).
 - [cdk-patterns-serverless/the-rds-proxy](https://github.com/cdk-patterns/serverless/tree/main/the-rds-proxy).
 - [wclr/ts-node-dev](ts-node-dev).
+- [vendia/serverless-express](https://github.com/vendia/serverless-express).
+- [khezen/compose-postgres](https://github.com/khezen/compose-postgres)

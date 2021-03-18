@@ -12,7 +12,7 @@ import * as s3 from "@aws-cdk/aws-s3";
 import * as s3deploy from "@aws-cdk/aws-s3-deployment";
 import * as cloudfront from "@aws-cdk/aws-cloudfront";
 
-export class LambdaCdkStack extends cdk.Stack {
+export class PrawnStack extends cdk.Stack {
 	constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
 		super(scope, id, props);
 
@@ -85,18 +85,13 @@ export class LambdaCdkStack extends cdk.Stack {
 			securityGroups: [rdsSecurityGroup],
 		});
 
-		// Create Lambdas and API Gateways
-
-		// Create HTTP API Gateway
-		const httpApi = new apigw.HttpApi(this, "prawn-stack-http-api");
-
-		// Create Home Lambda
-		const homeLambda = new lambdaNodeJs.NodejsFunction(
+		// Create Lambda and API Gateway
+		const lambdaApp = new lambdaNodeJs.NodejsFunction(
 			this,
-			"prawn-stack-home",
+			"prawn-stack-lambda",
 			{
 				runtime: lambda.Runtime.NODEJS_14_X,
-				entry: "src/backend/home.ts",
+				entry: "src/backend/lambda.ts",
 				handler: "handler",
 				vpc: vpc,
 				securityGroups: [lambdaSecurityGroup],
@@ -106,13 +101,18 @@ export class LambdaCdkStack extends cdk.Stack {
 				},
 			}
 		);
-		databaseCredentialsSecret.grantRead(homeLambda);
-		httpApi.addRoutes({
-			path: "/api/home",
-			methods: [apigw.HttpMethod.GET],
-			integration: new integrations.LambdaProxyIntegration({
-				handler: homeLambda,
-			}),
+		databaseCredentialsSecret.grantRead(lambdaApp);
+
+		const defaultIntegration = new integrations.LambdaProxyIntegration({
+			handler: lambdaApp,
+		});
+
+		const httpApi = new apigw.HttpApi(this, "prawn-stack-http-api", {
+			defaultIntegration,
+		});
+
+		new cdk.CfnOutput(this, "API Gateway URL", {
+			value: httpApi.url || "",
 		});
 
 		// // ---- Frontend ----

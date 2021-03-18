@@ -6,7 +6,7 @@
     "lambda-cdk": "bin/lambda-cdk.js"
   },
   "scripts": {
-    "start": "tsnd --respawn src/backend/local-express/server.ts",
+    "start": "tsnd --respawn src/backend/server.ts",
     "build": "cd src/frontend && yarn build",
     "test": "jest",
     "deploy": "yarn build && yarn cdk deploy",
@@ -43,7 +43,9 @@
     "typescript": "~3.8"
   },
   "dependencies": {
+    "@vendia/serverless-express": "4.3.4",
     "aws-sdk": "2.865.0",
+    "body-parser": "1.19.0",
     "pg": "8.5.1"
   }
 }

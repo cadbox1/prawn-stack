@@ -1231,6 +1231,11 @@
   dependencies:
     "@types/yargs-parser" "*"
 
+"@vendia/serverless-express@4.3.4":
+  version "4.3.4"
+  resolved "https://registry.yarnpkg.com/@vendia/serverless-express/-/serverless-express-4.3.4.tgz#6b2cdbd0a878831afcdc165b8f82841830cb8485"
+  integrity sha512-CAZ9/CheqSWIPptDNIae2CsgDnog6UZ/lgT7vWFcpmLG4qy+w4CWlzccxAwH8p5fwQNvNkEnA0Og5g2PXBDLYg==
+
 abab@^2.0.3, abab@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/abab/-/abab-2.0.5.tgz#c0b678fb32d60fc1219c784d6a826fe385aeb79a"
