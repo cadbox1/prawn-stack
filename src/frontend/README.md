@@ -1,68 +1,55 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Reverse Proxy example
 
-## Available Scripts
+This example applies this gist https://gist.github.com/jamsesso/67fd937b74989dc52e33 to Nextjs and provides:
 
-In the project directory, you can run:
+- Reverse proxy in development mode by add `http-proxy-middleware` to custom server
+- NOT a recommended approach to production scale (hence explicit dev flag) as we should scope proxy as outside UI applications and have separate web server taking care of that.
 
-### `yarn start`
+Sorry for the extra packages. I belong to the minority camp of writing ES6 code on Windows developers. Essentially you only need `http-proxy-middleware` on top of bare-bone Nextjs setup to run this example.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## How to use
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
 
-### `yarn test`
+```bash
+npx create-next-app --example with-custom-reverse-proxy with-custom-reverse-proxy-app
+# or
+yarn create next-app --example with-custom-reverse-proxy with-custom-reverse-proxy-app
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## What it does
 
-### `yarn build`
+Take any random query string to the index page and does a GET to `/api/<query string>` which gets routed internally to `https://swapi.co/api/<query string>`, or any API endpoint you wish to configure through the proxy.
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Expectation
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+/api/people/2 routed to https://swapi.co/api/people/2
+Try Reset
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+```json
+{
+  "name": "C-3PO",
+  "height": "167",
+  "mass": "75",
+  "hair_color": "n/a",
+  "skin_color": "gold",
+  "eye_color": "yellow",
+  "birth_year": "112BBY",
+  "gender": "n/a",
+  "homeworld": "https://swapi.co/api/planets/1/",
+  "films": [
+    "https://swapi.co/api/films/2/",
+    "https://swapi.co/api/films/5/",
+    "https://swapi.co/api/films/4/",
+    "https://swapi.co/api/films/6/",
+    "https://swapi.co/api/films/3/",
+    "https://swapi.co/api/films/1/"
+  ],
+  "species": ["https://swapi.co/api/species/2/"],
+  "vehicles": [],
+  "starships": [],
+  "created": "2014-12-10T15:10:51.357000Z",
+  "edited": "2014-12-20T21:17:50.309000Z",
+  "url": "https://swapi.co/api/people/2/"
+}
+```

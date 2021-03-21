@@ -97,25 +97,27 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 
 1. Right-Click on the app database then select Query Tool.
 
-## Roadmap
+## Testing
 
-1. Setup the frontend again.
+The tests are currently failing.
+
+## Roadmap
 
 ### Ideas
 
 1. Document the inspirations for this project, particularly from the LAMP stack.
-1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
 1. Setup integration tests.
+1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
 1. Clarify node_modules folders, possibly with yarn v2.
 1. Setup a materialized view and a cron to refresh it every 5 minutes.
 1. Set a maximum Lambda concurrency.
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
 1. Explain provisioned concurrency.
-1. Use Nextjs for frontend. Just the client side part.
 1. Move backend and frontend dev environments into docker.
 
 ### Done.
 
+- Setup frontend with nextjs.
 - Setup pageViews in deployed environment.
 - Set the NAT Gateways to 0 after being charged. Lucky I had a Budget!
 - Setup pageViews with local postgres database.

@@ -11,7 +11,8 @@ homeRouter.get("/", async (req, res) => {
 			`SELECT count(0) FROM page_view`
 		);
 
-		res.json({ message: "Welcome Home!", pageViews: countRows[0] });
+		res.set("Cache-Control", "no-store, max-age=0");
+		res.json({ message: "Welcome Home!", pageViews: countRows[0].count });
 	});
 });
 

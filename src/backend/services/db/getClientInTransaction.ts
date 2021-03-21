@@ -1,4 +1,4 @@
-import { Client } from "pg";
+import { Client, PoolClient } from "pg";
 import AWS from "aws-sdk";
 
 AWS.config.update({
@@ -19,7 +19,7 @@ var secretManager = new AWS.SecretsManager({
 	region: "ap-southeast-2",
 });
 
-async function getDbConnectionConfig() {
+export async function getDbConnectionConfig() {
 	if (developmentEnvironment) {
 		return developmentDbConnectionConfig;
 	}
@@ -49,7 +49,9 @@ async function getDbConnectionConfig() {
 	};
 }
 
-export type FunctionInTransaction = (client: Client) => Promise<any>;
+export type FunctionInTransaction = (
+	client: Client | PoolClient
+) => Promise<any>;
 
 export type GetClientInTransaction = (
 	wrappedFunction: FunctionInTransaction

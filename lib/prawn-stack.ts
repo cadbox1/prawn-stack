@@ -125,64 +125,64 @@ export class PrawnStack extends cdk.Stack {
 		});
 
 		new cdk.CfnOutput(this, "API Gateway URL", {
-			value: httpApi.url || "",
+			value: httpApi.apiEndpoint || "",
 		});
 
-		// // ---- Frontend ----
+		// ---- Frontend ----
 
-		// // bucket
-		// const bucketName = "frontend-aws-cdk";
-		// const siteBucket = new s3.Bucket(this, "SiteBucket", {
-		// 	bucketName,
-		// 	websiteIndexDocument: "index.html",
-		// 	websiteErrorDocument: "error.html",
-		// 	publicReadAccess: true,
-		// 	removalPolicy: cdk.RemovalPolicy.DESTROY, // change this for production
-		// });
+		// bucket
+		const bucketName = "frontend-aws-cdk";
+		const siteBucket = new s3.Bucket(this, "SiteBucket", {
+			bucketName,
+			websiteIndexDocument: "index.html",
+			websiteErrorDocument: "error.html",
+			publicReadAccess: true,
+			removalPolicy: cdk.RemovalPolicy.DESTROY, // change this for production
+		});
 
-		// // cloudfront distribution
-		// const distribution = new cloudfront.CloudFrontWebDistribution(
-		// 	this,
-		// 	"SiteDistribution",
-		// 	{
-		// 		originConfigs: [
-		// 			{
-		// 				customOriginSource: {
-		// 					domainName: siteBucket.bucketWebsiteDomainName,
-		// 					originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
-		// 				},
-		// 				behaviors: [{ isDefaultBehavior: true }],
-		// 			},
-		// 			// api origin - https://stackoverflow.com/a/57467656/728602
-		// 			{
-		// 				customOriginSource: {
-		// 					domainName: `${api.restApiId}.execute-api.${this.region}.${this.urlSuffix}`,
-		// 				},
-		// 				originPath: `/${api.deploymentStage.stageName}`,
-		// 				behaviors: [
-		// 					{
-		// 						pathPattern: "/api/*", // needs to match a path common with the gateway, see apiResource for more
-		// 						allowedMethods: cloudfront.CloudFrontAllowedMethods.ALL,
-		// 						forwardedValues: {
-		// 							queryString: true,
-		// 							headers: ["Authorization"],
-		// 						},
-		// 					},
-		// 				],
-		// 			},
-		// 		],
-		// 	}
-		// );
-		// new cdk.CfnOutput(this, "CloudfrontDistributionURL", {
-		// 	value: "https://" + distribution.distributionDomainName,
-		// });
+		// cloudfront distribution
+		const distribution = new cloudfront.CloudFrontWebDistribution(
+			this,
+			"SiteDistribution",
+			{
+				originConfigs: [
+					{
+						customOriginSource: {
+							domainName: siteBucket.bucketWebsiteDomainName,
+							originProtocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+						},
+						behaviors: [{ isDefaultBehavior: true }],
+					},
+					// api origin - https://stackoverflow.com/a/57467656/728602
+					{
+						customOriginSource: {
+							domainName: `${httpApi.httpApiId}.execute-api.${this.region}.${this.urlSuffix}`,
+						},
+						originPath: "",
+						behaviors: [
+							{
+								pathPattern: "/api/*",
+								allowedMethods: cloudfront.CloudFrontAllowedMethods.ALL,
+								forwardedValues: {
+									queryString: true,
+									headers: ["Authorization"],
+								},
+							},
+						],
+					},
+				],
+			}
+		);
+		new cdk.CfnOutput(this, "CloudfrontDistributionURL", {
+			value: "https://" + distribution.distributionDomainName,
+		});
 
-		// // Deploy site contents to S3 bucket
-		// new s3deploy.BucketDeployment(this, "DeployWithInvalidation", {
-		// 	sources: [s3deploy.Source.asset("src/frontend/build")],
-		// 	destinationBucket: siteBucket,
-		// 	distribution,
-		// 	distributionPaths: ["/*"],
-		// });
+		// Deploy site contents to S3 bucket
+		new s3deploy.BucketDeployment(this, "DeployWithInvalidation", {
+			sources: [s3deploy.Source.asset("src/frontend/out")],
+			destinationBucket: siteBucket,
+			distribution,
+			distributionPaths: ["/*"],
+		});
 	}
 }
