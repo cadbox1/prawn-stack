@@ -28,21 +28,35 @@
    aws_secret_access_key=
    ```
 1. Run `yarn` to install dependencies.
-1. Set the region in `bin/lambda-cdk.ts`.
+1. Set the region in `bin/prawn-cdk.ts`.
 1. Run `yarn cdk bootstrap --profile account-name`.
 1. Run `yarn deploy --profile account-name`.
 
-Subsequent deployments can then be done with:
+### Future Deploys
 
 ```
 yarn deploy --profile account-name
 ```
 
-And you can destroy a deployment with:
+### Destroy the Stack
 
 ```
 yarn cdk destroy --profile account-name
 ```
+
+### Setup a Tight AWS Budget
+
+1. On the account dropdown on the top right, Click My Account.
+1. Click Budgets.
+1. Click Create budget.
+1. Select Cost budget.
+1. Fill in the budget fields then click next.
+   - **Name:** Tight Budget
+   - **Budgeted amount:** \$1
+1. Fill in the threshold fields:
+   - **Alert threshold:** 100%
+   - **Emai recipients:** [your email]
+1. Confirm.
 
 ## Accessing the RDS Database
 
@@ -85,7 +99,6 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 
 ## Roadmap
 
-1. Setup pageViews in deployed environment.
 1. Setup the frontend again.
 
 ### Ideas
@@ -94,19 +107,21 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
 1. Setup integration tests.
 1. Clarify node_modules folders, possibly with yarn v2.
-1. Create an abstraction for translating between Lambda functions and express.
 1. Setup a materialized view and a cron to refresh it every 5 minutes.
-1. [Tune](https://www.jeremydaly.com/manage-rds-connections-aws-lambda/) the RDS connection settings for Serverless.
 1. Set a maximum Lambda concurrency.
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
 1. Explain provisioned concurrency.
+1. Use Nextjs for frontend. Just the client side part.
+1. Move backend and frontend dev environments into docker.
 
 ### Done.
 
-1. Deploy a cdk stack with RDS and Lambda.
-1. Setup Express to call the same handler as Lambda.
-1. Setup serverless-express to make routing conistent for local and deployed environments.
-1. Setup pageViews with local postgres database.
+- Setup pageViews in deployed environment.
+- Set the NAT Gateways to 0 after being charged. Lucky I had a Budget!
+- Setup pageViews with local postgres database.
+- Setup serverless-express to make routing conistent for local and deployed environments.
+- Setup Express to call the same handler as Lambda.
+- Deploy a cdk stack with RDS and Lambda.
 
 ## Related Projects
 

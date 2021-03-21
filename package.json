@@ -2,11 +2,8 @@
   "name": "prawn-stack",
   "version": "0.1.0",
   "license": "MIT",
-  "bin": {
-    "lambda-cdk": "bin/lambda-cdk.js"
-  },
   "scripts": {
-    "start": "tsnd --respawn src/backend/server.ts",
+    "start": "NODE_ENV=development tsnd --respawn src/backend/server.ts",
     "build": "cd src/frontend && yarn build",
     "test": "jest",
     "deploy": "yarn build && yarn cdk deploy",

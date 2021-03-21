@@ -21,6 +21,12 @@ export class PrawnStack extends cdk.Stack {
 		// Create VPC for RDS and Lambda
 		const vpc = new ec2.Vpc(this, "prawn-stack-vpc", {
 			maxAzs: 2, // must be at least 2 to make RDS happy
+			natGateways: 0, // this saves money!
+		});
+
+		// we need this to access secret manager because we don't have a NAT gateway because it's expensive.
+		vpc.addInterfaceEndpoint("SecretsManagerEndpoint", {
+			service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
 		});
 
 		// Create database credentials
@@ -93,10 +99,17 @@ export class PrawnStack extends cdk.Stack {
 				runtime: lambda.Runtime.NODEJS_14_X,
 				entry: "src/backend/lambda.ts",
 				handler: "handler",
+				timeout: cdk.Duration.seconds(10),
 				vpc: vpc,
 				securityGroups: [lambdaSecurityGroup],
+				bundling: {
+					externalModules: [
+						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
+						"pg-native", // errors without this
+					],
+				},
 				environment: {
-					DATABASE_ENDPOINT: rdsInstance.instanceEndpoint.socketAddress,
+					RDS_DATABASE_ENDPOINT: rdsInstance.instanceEndpoint.hostname,
 					RDS_SECRET_NAME: id + "-rds-credentials",
 				},
 			}

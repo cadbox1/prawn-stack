@@ -1,7 +1,55 @@
-import { pool } from "./pool";
-import { PoolClient } from "pg";
+import { Client } from "pg";
+import AWS from "aws-sdk";
 
-export type FunctionInTransaction = (client: PoolClient) => Promise<any>;
+AWS.config.update({
+	region: "ap-southeast-2",
+});
+
+const developmentEnvironment = process.env.NODE_ENV === "development";
+
+const developmentDbConnectionConfig = {
+	host: "localhost",
+	user: "postgres",
+	password: "changeme",
+	database: "app",
+	port: 5432,
+};
+
+var secretManager = new AWS.SecretsManager({
+	region: "ap-southeast-2",
+});
+
+async function getDbConnectionConfig() {
+	if (developmentEnvironment) {
+		return developmentDbConnectionConfig;
+	}
+
+	const rdsSecretName = process.env.RDS_SECRET_NAME;
+
+	if (!rdsSecretName) {
+		throw new Error("Missing RDS_SECRET_NAME envirnonment variable");
+	}
+
+	const secretRdsData = await secretManager
+		.getSecretValue({ SecretId: rdsSecretName })
+		.promise();
+
+	if (!secretRdsData.SecretString) {
+		throw new Error("Secret RDS data not found");
+	}
+
+	const { username, password } = JSON.parse(secretRdsData.SecretString);
+
+	return {
+		host: process.env.RDS_DATABASE_ENDPOINT,
+		user: username,
+		password,
+		database: "app",
+		port: 5432,
+	};
+}
+
+export type FunctionInTransaction = (client: Client) => Promise<any>;
 
 export type GetClientInTransaction = (
 	wrappedFunction: FunctionInTransaction
@@ -10,8 +58,9 @@ export type GetClientInTransaction = (
 export const getClientInTransaction: GetClientInTransaction = async (
 	wrappedFunction: FunctionInTransaction
 ) => {
-	const client = await pool.connect();
-
+	const dbConnectionConfig = await getDbConnectionConfig();
+	const client = new Client(dbConnectionConfig);
+	client.connect();
 	try {
 		await client.query("BEGIN");
 		await wrappedFunction(client);
@@ -20,6 +69,6 @@ export const getClientInTransaction: GetClientInTransaction = async (
 		await client.query("ROLLBACK");
 		throw e;
 	} finally {
-		client.release();
+		client.end();
 	}
 };
