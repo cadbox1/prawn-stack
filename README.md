@@ -7,6 +7,59 @@
 - **Aw**s.
 - **N**ode.
 
+![PRAwN Stack](./PRAwN%20Stack.png)
+
+## Inspiration
+
+The LAMP Stack (Linux, Apache, MySQL, PHP). I made a terrible chat app in year 10 to get around the school's internet filter.
+
+Features:
+
+- Free hosting.
+- Good local development (with [MAMP](https://www.mamp.info/en/mac/)).
+- Relational database.
+- Fun.
+
+Some [other people](https://news.ycombinator.com/item?id=21567577) also agree.
+
+I wanted to see if I could create a stack with similar qualities with more modern tools.
+
+## Serverless
+
+I'm a _serverless skeptic_. A few timely things swayed me to try serverless for this project.
+
+1. [serverless-express](https://github.com/vendia/serverless-express) allows you to run an express app in Lambda, which means you can run the express part locally for a nice development experience.
+1. I wanted to setup some scheduled jobs which are well suited to Lamdbda.
+1. AWS CDK makes working with AWS ~~easy~~ less hard.
+
+## The Lambda Problem
+
+I've discovered a problem with Lambda as part of this project and it just feels so quintessential of AWS.
+
+You can only have 2 of the following:
+
+- Connect to a Secure RDS Database.
+- Connect to the Internet.
+- Cheap.
+
+### NAT Gateway: Secure RDS and Internet Access but not Cheap
+
+- RDS in a private subnet.
+- Lambda in a private subnet inside the same VPC.
+- Internet access with a NAT Gateway which isn't cheap.
+
+### Public RDS: Internet Access and Cheap but RDS is Insecure
+
+- RDS in a public subnet without ip filtering (Lambda doesn't have an ip address) which makes it insecure.
+- Lambda outside the VPC so it has internet access.
+- Cheap because there's no NAT Gateway.
+
+### Invoke another Lambda as a Proxy
+
+Currently investigating this: https://serverlessfirst.com/lambda-vpc-internet-access-no-nat-gateway/
+
+Feels a bit hacky already.
+
 ## Scripts
 
 - `yarn build` build the frontend so it's ready to deploy
@@ -105,18 +158,18 @@ The tests are currently failing.
 
 ### Ideas
 
-1. Document the inspirations for this project, particularly from the LAMP stack.
 1. Setup integration tests.
 1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
 1. Clarify node_modules folders, possibly with yarn v2.
 1. Setup a materialized view and a cron to refresh it every 5 minutes.
 1. Set a maximum Lambda concurrency.
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
-1. Explain provisioned concurrency.
+1. Setup provisioned concurrency.
 1. Move backend and frontend dev environments into docker.
 
 ### Done.
 
+- Document the inspirations for this project.
 - Setup frontend with nextjs.
 - Setup pageViews in deployed environment.
 - Set the NAT Gateways to 0 after being charged. Lucky I had a Budget!
