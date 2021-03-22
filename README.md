@@ -46,7 +46,7 @@ You can only have 2 of the following:
 
 - RDS in a private subnet.
 - Lambda in a private subnet inside the same VPC.
-- Internet access with a NAT Gateway which isn't cheap.
+- Internet access with a NAT Gateway which [isn't cheap](https://forums.aws.amazon.com/thread.jspa?threadID=234959).
 
 ### Public RDS: Internet Access and Cheap but RDS is Insecure
 
@@ -54,11 +54,17 @@ You can only have 2 of the following:
 - Lambda outside the VPC so it has internet access.
 - Cheap because there's no NAT Gateway.
 
-### Invoke another Lambda as a Proxy
+### AWS PrivateLink Pricing
 
-Currently investigating this: https://serverlessfirst.com/lambda-vpc-internet-access-no-nat-gateway/
+It even costs money to use AWS services from a Lambda inside a VPC so you'll still get charged even if you don't need internet access.
 
-Feels a bit hacky already.
+This stack uses Secret Manager to manage the database credentials which requires an Interface Endpoint. [Pricing is here](https://aws.amazon.com/privatelink/pricing/).
+
+### NAT Gateway Workaround: Invoke another Lambda as a Proxy
+
+https://serverlessfirst.com/lambda-vpc-internet-access-no-nat-gateway/
+
+This means using twice as much lambda time and still incurring a cost for a VPC endpoint, similar to above. Still cheaper than a NAT Gateway but pretty hacky.
 
 ## Scripts
 
