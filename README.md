@@ -7,6 +7,8 @@
 - **Aw**s.
 - **N**ode.
 
+We're also using Typescript and NextJS for the frontend.
+
 ![PRAwN Stack](./PRAwN%20Stack.png)
 
 ## Inspiration
@@ -32,47 +34,36 @@ I'm a _serverless skeptic_. A few timely things swayed me to try serverless for 
 1. I wanted to setup some scheduled jobs which are well suited to Lamdbda.
 1. AWS CDK makes working with AWS ~~easy~~ less hard.
 
-## The Lambda Problem
+### The Lambda Problem
 
-I've discovered a problem with Lambda as part of this project and it just feels so quintessential of AWS.
-
-You can only have 2 of the following:
+AWS makes it very difficult to achieve all 3 of these:
 
 - Connect to a Secure RDS Database.
 - Connect to the Internet.
 - Cheap.
 
-### NAT Gateway: Secure RDS and Internet Access but not Cheap
+It feels very typical of AWS.
 
-- RDS in a private subnet.
-- Lambda in a private subnet inside the same VPC.
-- Internet access with a NAT Gateway which [isn't cheap](https://forums.aws.amazon.com/thread.jspa?threadID=234959).
+They [recommend using their NAT Gateway](https://aws.amazon.com/premiumsupport/knowledge-center/internet-access-lambda-function/) but [it's not cheap](https://forums.aws.amazon.com/thread.jspa?threadID=234959).
 
-### Public RDS: Internet Access and Cheap but RDS is Insecure
+I used a [NAT Instance](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html) in the EC2 free tier but it's no longer maintained. Thankfully, CDK [made this easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances) but I'm not so thankful for the extra latency it seems to cause, ~300ms (150%) more. I'm happy to pay with latency over money for this projects.
 
-- RDS in a public subnet without ip filtering (Lambda doesn't have an ip address) which makes it insecure.
-- Lambda outside the VPC so it has internet access.
-- Cheap because there's no NAT Gateway.
+Other options include making your RDS public to all ip addresses, since lambda doesn't have a single ip address, which would be horribly insecure.
 
-### AWS PrivateLink Pricing
+If you don't need internet access, you might be surprised learn that you need to [pay](https://aws.amazon.com/privatelink/pricing/) for a AWS PrivateLink to access AWS Services, like Secret Manager, which uses an interface endpoint. That would also be the case for this [Lambda proxy workaround](https://serverlessfirst.com/lambda-vpc-internet-access-no-nat-gateway/) I found.
 
-It even costs money to use AWS services from a Lambda inside a VPC so you'll still get charged even if you don't need internet access.
-
-This stack uses Secret Manager to manage the database credentials which requires an Interface Endpoint. [Pricing is here](https://aws.amazon.com/privatelink/pricing/).
-
-### NAT Gateway Workaround: Invoke another Lambda as a Proxy
-
-https://serverlessfirst.com/lambda-vpc-internet-access-no-nat-gateway/
-
-This means using twice as much lambda time and still incurring a cost for a VPC endpoint, similar to above. Still cheaper than a NAT Gateway but pretty hacky.
+Fun times.
 
 ## Scripts
 
-- `yarn build` build the frontend so it's ready to deploy
-- `yarn test` perform the jest unit tests
-- `yarn deploy --profile account-name` build the frontend and deploy the cdk stack
-- `yarn cdk bootstrap --profile account-name` prepare the AWS region for cdk deployments
-- `yarn cdk destroy --profile account-name` destroy the deployment
+- `docker-compose up` start the Postgres database.
+- `yarn start` run the development Node server.
+- `yarn dev` run the NextJS development server.
+- `yarn test` perform the jest unit tests.
+- `yarn build` build the NextJS frontend so it's ready to deploy.
+- `yarn cdk bootstrap --profile account-name` prepare the AWS region for cdk deployments.
+- `yarn deploy --profile account-name` build the frontend and deploy the cdk stack.
+- `yarn cdk destroy --profile account-name` destroy the deployment.
 
 ## First Deploy
 
@@ -88,10 +79,14 @@ This means using twice as much lambda time and still incurring a cost for a VPC 
    ```
 1. Run `yarn` to install dependencies.
 1. Set the region in `bin/prawn-cdk.ts`.
+1. Update `yourPublicIpAddress` in `lib/prawn-stack.ts` with your public ip address so you can access the database.
 1. Run `yarn cdk bootstrap --profile account-name`.
 1. Run `yarn deploy --profile account-name`.
+   - Takes about about 13 mins.
 
 ### Future Deploys
+
+This takes about 1-3 mins.
 
 ```
 yarn deploy --profile account-name
@@ -103,7 +98,31 @@ yarn deploy --profile account-name
 yarn cdk destroy --profile account-name
 ```
 
-### Setup a Tight AWS Budget
+### Access the RDS Database
+
+You'll need to do this to setup the database initially.
+
+Access is currently through a whitelisted ip address which isn't ideal but will work well enough for now.
+
+1. Make sure the `yourPublicIpAddress` in `lib/prawn-stack.ts` is up to date and deployed.
+1. Login to the AWS console.
+1. Go to Secret Manager.
+1. Click `PrawnStack-rds-credentials`.
+1. Go to the `Secret value` section then click `Retrieve secret`.
+1. Enter the values into [PgAdmin](https://www.pgadmin.org/).
+
+### Setup the Database
+
+1. Expand Servers, local, Databases.
+1. Right-Click on Databases and create a new one called `app`.
+1. Right-Click on the `app` database then select Query Tool.
+1. Run the scripts from the `src/backend/migrations` folder.
+
+### Query the Database
+
+1. Right-Click on the app database then select Query Tool.
+
+## Setup a Tight AWS Budget
 
 1. On the account dropdown on the top right, Click My Account.
 1. Click Budgets.
@@ -117,17 +136,7 @@ yarn cdk destroy --profile account-name
    - **Emai recipients:** [your email]
 1. Confirm.
 
-## Accessing the RDS Database
-
-You'll need to do this to setup the database initially.
-
-Access is currently through a whitelisted ip address which isn't ideal but will work well enough for now.
-
-1. Make sure you enter your IP Address in the cdk code.
-1. Login to AWS then go to the AWS Secret Manager for the credentials.
-1. Enter them into [PgAdmin](https://www.pgadmin.org/).
-
-## Accessing the local database
+## Accessing the Local Database
 
 1. Make sure you're docker containers are up.
    ```
@@ -147,18 +156,9 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
      - **Password:** changeme
      - **Save password?:** yes
 
-### Setup a new database
-
-1. Expand Servers, local, Databases.
-1. Right-Click on Databases and create a new one called app.
-
-### Query the database
-
-1. Right-Click on the app database then select Query Tool.
-
 ## Testing
 
-The tests are currently failing.
+The tests are currently failing. 🙂
 
 ## Roadmap
 
@@ -175,6 +175,7 @@ The tests are currently failing.
 
 ### Done.
 
+- Setup a NAT Instance to save on PrivateLink costs and allow internet access for Lambdas.
 - Document the inspirations for this project.
 - Setup frontend with nextjs.
 - Setup pageViews in deployed environment.

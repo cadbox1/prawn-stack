@@ -13,7 +13,7 @@ export default function Index() {
 				error
 					? "Error loading page views"
 					: !data
-					? "Loading..."
+					? "loading..."
 					: data.pageViews
 			}`}
 		</h1>

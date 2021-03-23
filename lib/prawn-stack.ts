@@ -21,12 +21,16 @@ export class PrawnStack extends cdk.Stack {
 		// Create VPC for RDS and Lambda
 		const vpc = new ec2.Vpc(this, "prawn-stack-vpc", {
 			maxAzs: 2, // must be at least 2 to make RDS happy
-			natGateways: 0, // this saves money!
-		});
 
-		// we need this to access secret manager because we don't have a NAT gateway because it's expensive.
-		vpc.addInterfaceEndpoint("SecretsManagerEndpoint", {
-			service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
+			// this isn't recommended by AWS but it's cheaper than their managed NAT Gateway
+			natGatewayProvider: ec2.NatProvider.instance({
+				// free tier
+				instanceType: ec2.InstanceType.of(
+					ec2.InstanceClass.T2,
+					ec2.InstanceSize.MICRO
+				),
+			}),
+			natGateways: 1,
 		});
 
 		// Create database credentials
@@ -131,13 +135,14 @@ export class PrawnStack extends cdk.Stack {
 		// ---- Frontend ----
 
 		// bucket
-		const bucketName = "frontend-aws-cdk";
+		const bucketName = "frontend-prawn-stack";
 		const siteBucket = new s3.Bucket(this, "SiteBucket", {
 			bucketName,
 			websiteIndexDocument: "index.html",
 			websiteErrorDocument: "error.html",
 			publicReadAccess: true,
 			removalPolicy: cdk.RemovalPolicy.DESTROY, // change this for production
+			autoDeleteObjects: true, // change this for production
 		});
 
 		// cloudfront distribution
@@ -165,7 +170,7 @@ export class PrawnStack extends cdk.Stack {
 								allowedMethods: cloudfront.CloudFrontAllowedMethods.ALL,
 								forwardedValues: {
 									queryString: true,
-									headers: ["Authorization"],
+									headers: ["Authorization"], // might need this later
 								},
 							},
 						],

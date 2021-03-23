@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "NODE_ENV=development PORT=3001 tsnd --respawn src/backend/server.ts",
+    "dev": "cd src/frontend && yarn dev",
     "build": "cd src/frontend && yarn build",
     "test": "jest",
     "deploy": "yarn build && yarn cdk deploy",
