@@ -124,7 +124,8 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 
 ## Setup a Tight AWS Budget
 
-1. On the account dropdown on the top right, Click My Account.
+1. Login to the root account.
+1. On the account dropdown on the top right, click My Billing Dashboard.
 1. Click Budgets.
 1. Click Create budget.
 1. Select Cost budget.
@@ -135,6 +136,17 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
    - **Alert threshold:** 100%
    - **Emai recipients:** [your email]
 1. Confirm.
+
+### Why is AWS Charging You?
+
+1. Login to the root account.
+1. On the account dropdown on the top right, click My Billing Dashboard.
+1. Click Cost Explorer.
+1. Click Daily Spend View.
+1. Change the timeframe to the last 7 days.
+1. Group by Usage Type.
+
+The table below will give you a decent breakdown on your charges.
 
 ## Accessing the Local Database
 

@@ -81,18 +81,19 @@ export class PrawnStack extends cdk.Stack {
 			engine: rds.DatabaseInstanceEngine.postgres({
 				version: rds.PostgresEngineVersion.VER_12_5,
 			}),
-			credentials: rds.Credentials.fromSecret(databaseCredentialsSecret),
+			allocatedStorage: 20, // 20 GB is part of the RDS Free Tier.
 			instanceType: ec2.InstanceType.of(
 				ec2.InstanceClass.BURSTABLE2,
 				ec2.InstanceSize.MICRO
 			), // Free Tier for 12 Months then ~$20 usd/month
+			credentials: rds.Credentials.fromSecret(databaseCredentialsSecret),
 			vpc,
 			vpcSubnets: {
 				subnetType: ec2.SubnetType.PUBLIC, // this isn't ideal but it makes connecting to the database easier
 			},
+			securityGroups: [rdsSecurityGroup],
 			removalPolicy: cdk.RemovalPolicy.DESTROY, // change this for production
 			deletionProtection: false, // change this for production
-			securityGroups: [rdsSecurityGroup],
 		});
 
 		// Create Lambda and API Gateway
