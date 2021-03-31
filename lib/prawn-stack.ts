@@ -2,12 +2,10 @@ import * as cdk from "@aws-cdk/core";
 import * as rds from "@aws-cdk/aws-rds";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as secrets from "@aws-cdk/aws-secretsmanager";
-import * as ssm from "@aws-cdk/aws-ssm";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as lambdaNodeJs from "@aws-cdk/aws-lambda-nodejs";
 import * as apigw from "@aws-cdk/aws-apigatewayv2";
 import * as integrations from "@aws-cdk/aws-apigatewayv2-integrations";
-
 import * as s3 from "@aws-cdk/aws-s3";
 import * as s3deploy from "@aws-cdk/aws-s3-deployment";
 import * as cloudfront from "@aws-cdk/aws-cloudfront";
@@ -82,6 +80,7 @@ export class PrawnStack extends cdk.Stack {
 				version: rds.PostgresEngineVersion.VER_12_5,
 			}),
 			allocatedStorage: 20, // 20 GB is part of the RDS Free Tier.
+			backupRetention: cdk.Duration.days(1), // This is also part of the RDS Free Tier.
 			instanceType: ec2.InstanceType.of(
 				ec2.InstanceClass.BURSTABLE2,
 				ec2.InstanceSize.MICRO

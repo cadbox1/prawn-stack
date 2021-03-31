@@ -71,7 +71,11 @@ Fun times.
 1. Enable MFA on your Root account.
 1. Create an IAM user with programmtic access and assign the FullAdministratorAccess permission.
 1. Download the credentials.
-1. Setup your credentials with `vi ~/.aws/credentials`.
+1. Create a `.aws` folder if you don't already have one.
+   ```
+   mkdir ~/.aws
+   ```
+1. Create a credential file with `vi ~/.aws/credentials`.
    ```
    [account-name]
    aws_access_key_id=
