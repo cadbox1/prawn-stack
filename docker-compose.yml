@@ -16,6 +16,16 @@ services:
       - postgres
     restart: unless-stopped
 
+  flyway:
+    image: flyway/flyway
+    command: -url=jdbc:postgresql://postgres/postgres -user=postgres -password=changeme -connectRetries=60 migrate
+    volumes:
+      - ./src/backend/migrations:/flyway/sql
+    depends_on:
+      - postgres
+    networks:
+      - postgres
+
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4

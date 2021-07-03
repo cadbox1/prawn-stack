@@ -11,7 +11,7 @@ const developmentDbConnectionConfig = {
 	host: "localhost",
 	user: "postgres",
 	password: "changeme",
-	database: "app",
+	database: "postgres",
 	port: 5432,
 };
 

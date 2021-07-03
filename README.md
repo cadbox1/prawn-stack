@@ -11,6 +11,14 @@ We're also using Typescript and NextJS for the frontend.
 
 ![PRAwN Stack](./PRAwN%20Stack.png)
 
+## Almost Completely in the Free Tier!
+
+![bill](./bill.png)
+
+The only thing you have to pay for is Secrets Manager which is \$0.4/month.
+
+When the free tier ends after 12 months you could move this onto a t3.micro for rds at $0.028/h, $21/month) and a t3.nano for ec2 (used as a cheap NAT) at $0.0066/h, $4.95/month.
+
 ## Inspiration
 
 The LAMP Stack (Linux, Apache, MySQL, PHP). I made a terrible chat app in year 10 to get around the school's internet filter.
@@ -44,7 +52,7 @@ AWS makes it very difficult to achieve all 3 of these:
 
 It feels very typical of AWS.
 
-They [recommend using their NAT Gateway](https://aws.amazon.com/premiumsupport/knowledge-center/internet-access-lambda-function/) but [it's not cheap](https://forums.aws.amazon.com/thread.jspa?threadID=234959).
+They [recommend using their NAT Gateway](https://aws.amazon.com/premiumsupport/knowledge-center/internet-access-lambda-function/) but [it's not cheap](https://forums.aws.amazon.com/thread.jspa?threadID=234959) at $0.059/h and $44.25/month.
 
 I used a [NAT Instance](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html) in the EC2 free tier but it's no longer maintained. Thankfully, CDK [made this easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances) but I'm not so thankful for the extra latency it seems to cause, ~300ms (150%) more. I'm happy to pay with latency over money for this projects.
 
@@ -113,18 +121,19 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 1. Go to Secret Manager.
 1. Click `PrawnStack-rds-credentials`.
 1. Go to the `Secret value` section then click `Retrieve secret`.
-1. Enter the values into [PgAdmin](https://www.pgadmin.org/).
 
 ### Setup the Database
 
-1. Expand Servers, local, Databases.
-1. Right-Click on Databases and create a new one called `app`.
-1. Right-Click on the `app` database then select Query Tool.
-1. Run the scripts from the `src/backend/migrations` folder.
+Run the following command, replacing host user and password with values from the secret above.
+
+```
+docker-compose run flyway -url=jdbc:postgresql://[host] -user=[user] -password=[password] migrate
+```
 
 ### Query the Database
 
-1. Right-Click on the app database then select Query Tool.
+1. Enter the values into [PgAdmin](https://www.pgadmin.org/).
+1. Right-Click on the postgres database then select Query Tool.
 
 ## Setup a Tight AWS Budget
 
@@ -191,6 +200,7 @@ The tests are currently failing. 🙂
 
 ### Done.
 
+- Setup flyway for database migrations.
 - Setup a NAT Instance to save on PrivateLink costs and allow internet access for Lambdas.
 - Document the inspirations for this project.
 - Setup frontend with nextjs.
