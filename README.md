@@ -196,13 +196,12 @@ I wanted to see if I could create a stack with similar qualities with more moder
 ### Ideas
 
 1. Setup integration tests.
+1. Change page views table to an events table
 1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
-1. Clarify node_modules folders, possibly with yarn v2.
 1. Setup a materialized view and a cron to refresh it every 5 minutes.
 1. Set a maximum Lambda concurrency.
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
 1. Setup provisioned concurrency.
-1. Move backend and frontend dev environments into docker.
 
 ### Done.
 
