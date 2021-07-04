@@ -2,7 +2,6 @@ version: "3.5"
 
 services:
   postgres:
-    container_name: postgres_container
     image: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -13,7 +12,7 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - postgres
+      - default
     restart: unless-stopped
 
   flyway:
@@ -24,10 +23,9 @@ services:
     depends_on:
       - postgres
     networks:
-      - postgres
+      - default
 
   pgadmin:
-    container_name: pgadmin_container
     image: dpage/pgadmin4
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
@@ -37,11 +35,37 @@ services:
     ports:
       - "${PGADMIN_PORT:-5050}:80"
     networks:
-      - postgres
+      - default
     restart: unless-stopped
 
+  api:
+    image: mhart/alpine-node:14
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app:cached
+    ports:
+      - "3001:3001"
+    command: "yarn start"
+    depends_on:
+      - postgres
+    networks:
+      - default
+
+  frontend:
+    image: mhart/alpine-node:14
+    working_dir: /home/node/app
+    volumes:
+      - ./:/home/node/app:cached
+    ports:
+      - "3000:3000"
+    command: "yarn run dev"
+    depends_on:
+      - api
+    networks:
+      - default
+
 networks:
-  postgres:
+  default:
     driver: bridge
 
 volumes:

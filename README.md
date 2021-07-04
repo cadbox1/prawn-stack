@@ -11,6 +11,56 @@ We're also using Typescript and NextJS for the frontend.
 
 ![PRAwN Stack](./PRAwN%20Stack.png)
 
+## Features
+
+- Relational database so you can make cool stateful apps like a page view counter.
+- Fun local development experience with docker-compose.
+- Easy to deploy with AWS CDK.
+- Almost completely in the AWS Free Tier. Turns out this is actually quite difficult with RDS and Lambda.
+
+## Scripts
+
+- `docker-compose up` starts postgres, the node api development server and the nextjs development server.
+- `yarn start` run the development Node server.
+- `yarn dev` run the NextJS development server.
+- `yarn test` perform the jest unit tests.
+- `yarn build` build the NextJS frontend so it's ready to deploy.
+- `yarn cdk bootstrap --profile account-name` prepare the AWS region for cdk deployments.
+- `yarn deploy --profile account-name` build the frontend and deploy the cdk stack.
+- `yarn cdk destroy --profile account-name` destroy the deployment.
+
+## Running Locally
+
+1. Install dependencies.
+   ```
+   yarn
+   ```
+1. Run docker-compose.
+   ```
+   docker-compose up
+   ```
+   This will bring up:
+   - Postgres database and run migrations on it using Flyway.
+   - PgAdmin to access the Postgres database. Available at [http://localhost:5050/](http://localhost:5050/).
+   - Node API development server. Available at [http://localhost:3001/api/](http://localhost:3001/api/).
+   - NextJS development server for the frontend. Available at [http://localhost:3000](http://localhost:3000.
+
+### Accessing the Local Database
+
+1. Go to [http://localhost:5050/](http://localhost:5050/).
+1. Login with:
+   - **Email:** pgadmin4@pgadmin.org
+   - **Password:** admin
+1. Click Add New Server.
+1. Fill in the local server details.
+   - General
+     - **Name:** local
+   - Connection
+     - **Host:** postgres
+     - **Username:** postgres
+     - **Password:** changeme
+     - **Save password?:** yes
+
 ## Almost Completely in the Free Tier!
 
 ![bill](./bill.png)
@@ -19,59 +69,25 @@ The only thing you have to pay for is Secrets Manager which is \$0.4/month.
 
 When the free tier ends after 12 months you could move this onto a t3.micro for rds at $0.028/h, $21/month) and a t3.nano for ec2 (used as a cheap NAT) at $0.0066/h, $4.95/month.
 
-## Inspiration
+### Serverless and Lambda
 
-The LAMP Stack (Linux, Apache, MySQL, PHP). I made a terrible chat app in year 10 to get around the school's internet filter.
-
-Features:
-
-- Free hosting.
-- Good local development (with [MAMP](https://www.mamp.info/en/mac/)).
-- Relational database.
-- Fun.
-
-Some [other people](https://news.ycombinator.com/item?id=21567577) also agree.
-
-I wanted to see if I could create a stack with similar qualities with more modern tools.
-
-## Serverless
-
-I'm a _serverless skeptic_. A few timely things swayed me to try serverless for this project.
+I'm a _serverless skeptic_. A few timely things swayed me to try Lambda for this project.
 
 1. [serverless-express](https://github.com/vendia/serverless-express) allows you to run an express app in Lambda, which means you can run the express part locally for a nice development experience.
-1. I wanted to setup some scheduled jobs which are well suited to Lamdbda.
+1. I wanted to setup some cron jobs which are well suited to Lamdbda.
 1. AWS CDK makes working with AWS ~~easy~~ less hard.
 
-### The Lambda Problem
+It turns out the simplest way to setup Lambda with RDS is quite expensive. You have to [use a NAT Gateway](<(https://aws.amazon.com/premiumsupport/knowledge-center/internet-access-lambda-function/)>) which costs $0.059/h and $44.25/month. [That's expensive!](https://forums.aws.amazon.com/thread.jspa?threadID=234959).
 
-AWS makes it very difficult to achieve all 3 of these:
+There's a few ways to get around this:
 
-- Connect to a Secure RDS Database.
-- Connect to the Internet.
-- Cheap.
+- Make your database public. This isn't secure.
+- Make your Lambda private so it can't access the internet. The internet is useful though and you'll have to [pay](https://aws.amazon.com/privatelink/pricing/) to access AWS services like Secret Manager.
+- Setup a NAT Instance in the free tier.
 
-It feels very typical of AWS.
+This all feels very typical of AWS.
 
-They [recommend using their NAT Gateway](https://aws.amazon.com/premiumsupport/knowledge-center/internet-access-lambda-function/) but [it's not cheap](https://forums.aws.amazon.com/thread.jspa?threadID=234959) at $0.059/h and $44.25/month.
-
-I used a [NAT Instance](https://docs.aws.amazon.com/vpc/latest/userguide/VPC_NAT_Instance.html) in the EC2 free tier but it's no longer maintained. Thankfully, CDK [made this easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances) but I'm not so thankful for the extra latency it seems to cause, ~300ms (150%) more. I'm happy to pay with latency over money for this projects.
-
-Other options include making your RDS public to all ip addresses, since lambda doesn't have a single ip address, which would be horribly insecure.
-
-If you don't need internet access, you might be surprised learn that you need to [pay](https://aws.amazon.com/privatelink/pricing/) for a AWS PrivateLink to access AWS Services, like Secret Manager, which uses an interface endpoint. That would also be the case for this [Lambda proxy workaround](https://serverlessfirst.com/lambda-vpc-internet-access-no-nat-gateway/) I found.
-
-Fun times.
-
-## Scripts
-
-- `docker-compose up` start the Postgres database.
-- `yarn start` run the development Node server.
-- `yarn dev` run the NextJS development server.
-- `yarn test` perform the jest unit tests.
-- `yarn build` build the NextJS frontend so it's ready to deploy.
-- `yarn cdk bootstrap --profile account-name` prepare the AWS region for cdk deployments.
-- `yarn deploy --profile account-name` build the frontend and deploy the cdk stack.
-- `yarn cdk destroy --profile account-name` destroy the deployment.
+I went with the NAT Instance because thankfully [CDK makes it easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances). Unfortunately, it does some to add some extra latency, ~300ms (150%) more, but I'll happily cop latency instead of money for this project.
 
 ## First Deploy
 
@@ -104,13 +120,7 @@ This takes about 1-3 mins.
 yarn deploy --profile account-name
 ```
 
-### Destroy the Stack
-
-```
-yarn cdk destroy --profile account-name
-```
-
-### Access the RDS Database
+### Access the Database
 
 You'll need to do this to setup the database initially.
 
@@ -122,20 +132,25 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 1. Click `PrawnStack-rds-credentials`.
 1. Go to the `Secret value` section then click `Retrieve secret`.
 
+You can put the values into PgAdmin to query the database.
+
 ### Setup the Database
 
-Run the following command, replacing host user and password with values from the secret above.
+Run the following command to migrate the database with Flyway.
 
 ```
 docker-compose run flyway -url=jdbc:postgresql://[host] -user=[user] -password=[password] migrate
 ```
 
-### Query the Database
+### Destroy the Stack
 
-1. Enter the values into [PgAdmin](https://www.pgadmin.org/).
-1. Right-Click on the postgres database then select Query Tool.
+```
+yarn cdk destroy --profile account-name
+```
 
 ## Setup a Tight AWS Budget
+
+So you don't get an unexpected bill.
 
 1. Login to the root account.
 1. On the account dropdown on the top right, click My Billing Dashboard.
@@ -161,29 +176,20 @@ docker-compose run flyway -url=jdbc:postgresql://[host] -user=[user] -password=[
 
 The table below will give you a decent breakdown on your charges.
 
-## Accessing the Local Database
+## Inspiration
 
-1. Make sure you're docker containers are up.
-   ```
-   docker-compose up
-   ```
-1. Go to [http://localhost:5050/](http://localhost:5050/).
-1. Login with:
-   - **Email:** pgadmin4@pgadmin.org
-   - **Password:** admin
-1. Click Add New Server.
-1. Fill in the local server details.
-   - General
-     - **Name:** local
-   - Connection
-     - **Host:** postgres
-     - **Username:** postgres
-     - **Password:** changeme
-     - **Save password?:** yes
+The LAMP Stack (Linux, Apache, MySQL, PHP) is the inspiration for this project. I made a terrible chat app with it when I was in year 10 to get around the school's internet filter but it worked and it was really fun.
 
-## Testing
+The best parts:
 
-The tests are currently failing. 🙂
+- Free hosting with dodgy hosts.
+- Good local development with [MAMP](https://www.mamp.info/en/mac/).
+- Relational database.
+- Fun.
+
+Some [other people](https://news.ycombinator.com/item?id=21567577) also agree.
+
+I wanted to see if I could create a stack with similar qualities with more modern tools.
 
 ## Roadmap
 
@@ -200,6 +206,7 @@ The tests are currently failing. 🙂
 
 ### Done.
 
+- Moved setup the api and frontend in docker-compose. It's a bit slow though.
 - Setup flyway for database migrations.
 - Setup a NAT Instance to save on PrivateLink costs and allow internet access for Lambdas.
 - Document the inspirations for this project.

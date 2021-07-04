@@ -8,7 +8,7 @@ AWS.config.update({
 const developmentEnvironment = process.env.NODE_ENV === "development";
 
 const developmentDbConnectionConfig = {
-	host: "localhost",
+	host: "postgres",
 	user: "postgres",
 	password: "changeme",
 	database: "postgres",
