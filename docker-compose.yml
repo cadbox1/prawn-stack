@@ -42,7 +42,7 @@ services:
     image: mhart/alpine-node:14
     working_dir: /home/node/app
     volumes:
-      - ./:/home/node/app:cached
+      - ./:/home/node/app:delegated
     ports:
       - "3001:3001"
     command: "yarn start"
@@ -55,7 +55,7 @@ services:
     image: mhart/alpine-node:14
     working_dir: /home/node/app
     volumes:
-      - ./:/home/node/app:cached
+      - ./:/home/node/app:delegated
     ports:
       - "3000:3000"
     command: "yarn run dev"
