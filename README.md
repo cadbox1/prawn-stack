@@ -195,10 +195,13 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Ideas
 
-1. Setup integration tests.
-1. Change page views table to an events table
+1. Change page views table to an events table.
+1. Setup a subdomain.
 1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
-1. Setup a materialized view and a cron to refresh it every 5 minutes.
+1. Graph the number of events over time with something like Nivo.
+1. Setup a rollup table and iteratively refresh it as a materialized view solution.
+1. Setup MDX on NextJS pages and add some more copy about the project.
+1. Setup integration tests.
 1. Set a maximum Lambda concurrency.
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
 1. Setup provisioned concurrency.
