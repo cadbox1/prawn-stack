@@ -9,10 +9,58 @@ import * as integrations from "@aws-cdk/aws-apigatewayv2-integrations";
 import * as s3 from "@aws-cdk/aws-s3";
 import * as s3deploy from "@aws-cdk/aws-s3-deployment";
 import * as cloudfront from "@aws-cdk/aws-cloudfront";
+import * as budgets from "@aws-cdk/aws-budgets";
+import * as certificatemanager from "@aws-cdk/aws-certificatemanager";
+
+interface CertificateProps {
+	customDomain: string;
+}
+
+export class CertificateStack extends cdk.Stack {
+	constructor(scope: cdk.Construct, id: string, props: CertificateProps) {
+		super(scope, id, {
+			env: { region: "us-east-1" }, // must be in us-east-1 for cloudfront
+		});
+
+		const { customDomain } = props;
+
+		const certificate = new certificatemanager.Certificate(
+			this,
+			"CustomDomainCertificate",
+			{
+				domainName: customDomain,
+				validation: certificatemanager.CertificateValidation.fromEmail(),
+			}
+		);
+
+		const certificateArn = certificate.certificateArn;
+		new cdk.CfnOutput(this, "CertificateArn", {
+			value: certificateArn,
+		});
+		new cdk.CfnOutput(this, "Instructions", {
+			value: "Add the CertificateArn to `bin/prawn-cdk.ts`",
+		});
+	}
+}
+
+interface PrawnStackProps extends cdk.StackProps {
+	region: string;
+	customDomain: string;
+	yourPublicIpAddress: string;
+	emailAddressForBudget: string;
+	certificateArn: string;
+}
 
 export class PrawnStack extends cdk.Stack {
-	constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+	constructor(scope: cdk.Construct, id: string, props: PrawnStackProps) {
 		super(scope, id, props);
+
+		const {
+			customDomain,
+			yourPublicIpAddress,
+			emailAddressForBudget,
+			certificateArn,
+		} = props;
 
 		// ---- Backend ----
 
@@ -67,7 +115,6 @@ export class PrawnStack extends cdk.Stack {
 			"Allow Lambda Security Group"
 		);
 
-		const yourPublicIpAddress = "180.150.80.84/32"; // Allow connections to the database from your ip address. Not ideal but convenient.
 		rdsSecurityGroup.addIngressRule(
 			ec2.Peer.ipv4(yourPublicIpAddress),
 			ec2.Port.tcp(5432),
@@ -145,11 +192,25 @@ export class PrawnStack extends cdk.Stack {
 			autoDeleteObjects: true, // change this for production
 		});
 
+		const certificate = certificatemanager.Certificate.fromCertificateArn(
+			this,
+			"Certificate",
+			certificateArn
+		);
+
 		// cloudfront distribution
 		const distribution = new cloudfront.CloudFrontWebDistribution(
 			this,
 			"SiteDistribution",
 			{
+				viewerCertificate: cloudfront.ViewerCertificate.fromAcmCertificate(
+					certificate,
+					{
+						aliases: [customDomain],
+						securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1,
+						sslMethod: cloudfront.SSLMethod.SNI,
+					}
+				),
 				originConfigs: [
 					{
 						customOriginSource: {
@@ -181,6 +242,9 @@ export class PrawnStack extends cdk.Stack {
 		new cdk.CfnOutput(this, "CloudfrontDistributionURL", {
 			value: "https://" + distribution.distributionDomainName,
 		});
+		new cdk.CfnOutput(this, "CloudfrontDistributionDomain", {
+			value: distribution.distributionDomainName,
+		});
 
 		// Deploy site contents to S3 bucket
 		new s3deploy.BucketDeployment(this, "DeployWithInvalidation", {
@@ -188,6 +252,28 @@ export class PrawnStack extends cdk.Stack {
 			destinationBucket: siteBucket,
 			distribution,
 			distributionPaths: ["/*"],
+		});
+
+		// budget
+		new budgets.CfnBudget(this, "tight-ass-budget", {
+			budget: {
+				budgetName: "tight-ass-budget",
+				budgetType: "COST",
+				timeUnit: "MONTHLY",
+				budgetLimit: { amount: 1, unit: "USD" },
+			},
+			notificationsWithSubscribers: [
+				{
+					notification: {
+						notificationType: "ACTUAL",
+						comparisonOperator: "GREATER_THAN",
+						threshold: 100, // percent
+					},
+					subscribers: [
+						{ subscriptionType: "EMAIL", address: emailAddressForBudget },
+					],
+				},
+			],
 		});
 	}
 }

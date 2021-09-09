@@ -1,10 +1,6 @@
 import { Client, PoolClient } from "pg";
 import AWS from "aws-sdk";
 
-AWS.config.update({
-	region: "ap-southeast-2",
-});
-
 const developmentEnvironment = process.env.NODE_ENV === "development";
 
 const developmentDbConnectionConfig = {
@@ -15,9 +11,7 @@ const developmentDbConnectionConfig = {
 	port: 5432,
 };
 
-var secretManager = new AWS.SecretsManager({
-	region: "ap-southeast-2",
-});
+var secretManager = new AWS.SecretsManager();
 
 export async function getDbConnectionConfig() {
 	if (developmentEnvironment) {
@@ -44,7 +38,7 @@ export async function getDbConnectionConfig() {
 		host: process.env.RDS_DATABASE_ENDPOINT,
 		user: username,
 		password,
-		database: "app",
+		database: "postgres",
 		port: 5432,
 	};
 }

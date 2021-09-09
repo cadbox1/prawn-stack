@@ -69,6 +69,8 @@ The only thing you have to pay for is Secrets Manager which is \$0.4/month.
 
 When the free tier ends after 12 months you could move this onto a t3.micro for rds at $0.028/h, $21/month) and a t3.nano for ec2 (used as a cheap NAT) at $0.0066/h, $4.95/month.
 
+There's also a budget configured with cdk to alert you when you spend more than \$1 usd to remind you when the free tier ends.
+
 ### Serverless and Lambda
 
 I'm a _serverless skeptic_. A few timely things swayed me to try Lambda for this project.
@@ -91,9 +93,15 @@ I went with the NAT Instance because thankfully [CDK makes it easy](https://docs
 
 ## First Deploy
 
+Make sure you setup email forwarding for `admin` @yourdomain (e.g `admin@cadell.dev`) you receive the email from aws to validate that you own the domain so it can create a certificate.
+
 1. Create an [AWS account](https://aws.amazon.com/).
-1. Enable MFA on your Root account.
-1. Create an IAM user with programmtic access and assign the FullAdministratorAccess permission.
+1. Click Signin.
+1. Click Create a new AWS account.
+1. Enter your details.
+1. Go to IAM.
+1. Enable MFA on your Root account. I recommend 1Password.
+1. Create an IAM user with programmtic access and assign the AdministratorAccess permission.
 1. Download the credentials.
 1. Create a `.aws` folder if you don't already have one.
    ```
@@ -109,8 +117,12 @@ I went with the NAT Instance because thankfully [CDK makes it easy](https://docs
 1. Set the region in `bin/prawn-cdk.ts`.
 1. Update `yourPublicIpAddress` in `lib/prawn-stack.ts` with your public ip address so you can access the database.
 1. Run `yarn cdk bootstrap --profile account-name`.
+1. Run `yarn cdk deploy CertificateStack --profile account-name`.
+   - This will send an email to `admin@yourdomain` to confirm you control the domain for the certificate it's creating. You can also go into CertificateManager in the `us-east-1` region and resend it if you need to.
+   - The command won't finish until you approve the email.
+1. Copy the certificateArn from the output and add it to the `bin/prawn-cdk.ts`.
 1. Run `yarn deploy --profile account-name`.
-   - Takes about about 13 mins.
+   - This takes about about 15 mins.
 
 ### Future Deploys
 
@@ -128,9 +140,10 @@ Access is currently through a whitelisted ip address which isn't ideal but will 
 
 1. Make sure the `yourPublicIpAddress` in `lib/prawn-stack.ts` is up to date and deployed.
 1. Login to the AWS console.
+1. Select the region, probably `ap-southeast-2`.
 1. Go to Secret Manager.
 1. Click `PrawnStack-rds-credentials`.
-1. Go to the `Secret value` section then click `Retrieve secret`.
+1. Go to the `Secret value` section then click `Retrieve secret value`.
 
 You can put the values into PgAdmin to query the database.
 
@@ -139,31 +152,20 @@ You can put the values into PgAdmin to query the database.
 Run the following command to migrate the database with Flyway.
 
 ```
-docker-compose run flyway -url=jdbc:postgresql://[host] -user=[user] -password=[password] migrate
+docker-compose run flyway -url=jdbc:postgresql://[host]/postgres -user=[user] -password=[password] migrate
 ```
+
+### Setup a Custom Domain
+
+1. Sign into your domain registrar. I use [Google Domains](https://domains.google.com).
+1. Setup a new CNAME DNS record using the coudfront domain in the deploy output.
+1. Make sure the CNAME aligns with the `customDomain` in `bin/prawn-cdk.ts`.
 
 ### Destroy the Stack
 
 ```
 yarn cdk destroy --profile account-name
 ```
-
-## Setup a Tight AWS Budget
-
-So you don't get an unexpected bill.
-
-1. Login to the root account.
-1. On the account dropdown on the top right, click My Billing Dashboard.
-1. Click Budgets.
-1. Click Create budget.
-1. Select Cost budget.
-1. Fill in the budget fields then click next.
-   - **Name:** Tight Budget
-   - **Budgeted amount:** \$1
-1. Fill in the threshold fields:
-   - **Alert threshold:** 100%
-   - **Emai recipients:** [your email]
-1. Confirm.
 
 ### Why is AWS Charging You?
 
@@ -208,6 +210,8 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Done.
 
+- Custom domain.
+- Setup a budget in cdk.
 - Moved setup the api and frontend in docker-compose. It's a bit slow though.
 - Setup flyway for database migrations.
 - Setup a NAT Instance to save on PrivateLink costs and allow internet access for Lambdas.
