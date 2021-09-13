@@ -9,7 +9,7 @@
 
 We're also using Typescript and NextJS for the frontend.
 
-![PRAwN Stack](./PRAwN%20Stack.png)
+![PRAwN Stack](./docs/assets/PRAwN%20Stack.png)
 
 ## Features
 
@@ -63,7 +63,7 @@ We're also using Typescript and NextJS for the frontend.
 
 ## Almost Completely in the Free Tier!
 
-![bill](./bill.png)
+![bill](./docs/assets/bill.png)
 
 The only thing you have to pay for is Secrets Manager which is \$0.4/month.
 
@@ -90,6 +90,28 @@ There's a few ways to get around this:
 This all feels very typical of AWS.
 
 I went with the NAT Instance because thankfully [CDK makes it easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances). Unfortunately, it does some to add some extra latency, ~300ms (150%) more, but I'll happily cop latency instead of money for this project.
+
+## Load Testing
+
+![wrk results](./docs/assets/wrk.png)
+
+Even under light load, this stack is pretty slow coming in at 515ms on average. I'm not exactly sure why but I think it might be something to do with the NAT instance.
+
+With more load, our application can support a throughput of 193 requests per second or about 16.7 million per day at 1000ms latency. I'm going to ignore those socket errors.
+
+I worked this out by running tests with increasingly higher concurrent requests until the latency reached 1000ms where we consider the application to have failed. If we think higher latencies are acceptable then we might be able to support even more throughput.
+
+You can install [wrk](https://github.com/wg/wrk) with:
+
+```
+brew install wrk
+```
+
+Then run it with:
+
+```
+wrk -t1 -c1 -d60s https://prawn.cadell.dev/api/home
+```
 
 ## First Deploy
 
