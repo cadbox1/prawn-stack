@@ -1,7 +1,19 @@
-import { Client, PoolClient } from "pg";
-import AWS from "aws-sdk";
+import pgRaw, { Client, PoolClient } from "pg";
+import AWSXRay from "aws-xray-sdk";
+import AwsSdk from "aws-sdk";
 
 const developmentEnvironment = process.env.NODE_ENV === "development";
+
+let pg = pgRaw;
+let AWS, secretManager: AwsSdk.SecretsManager;
+
+if (!developmentEnvironment) {
+	AWS = AWSXRay.captureAWS(AwsSdk);
+	secretManager = new AWS.SecretsManager();
+
+	// @ts-ignore
+	pg = AWSXRay.capturePostgres(pgRaw);
+}
 
 const developmentDbConnectionConfig = {
 	host: "postgres",
@@ -10,8 +22,6 @@ const developmentDbConnectionConfig = {
 	database: "postgres",
 	port: 5432,
 };
-
-var secretManager = new AWS.SecretsManager();
 
 export async function getDbConnectionConfig() {
 	if (developmentEnvironment) {
@@ -55,10 +65,11 @@ export const getClientInTransaction: GetClientInTransaction = async (
 	wrappedFunction: FunctionInTransaction
 ) => {
 	const dbConnectionConfig = await getDbConnectionConfig();
-	const client = new Client(dbConnectionConfig);
+	const client = new pg.Client(dbConnectionConfig);
 	client.connect();
 	try {
 		await client.query("BEGIN");
+		// @ts-ignore
 		await wrappedFunction(client);
 		await client.query("COMMIT");
 	} catch (e) {

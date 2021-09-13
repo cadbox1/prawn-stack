@@ -95,7 +95,7 @@ I went with the NAT Instance because thankfully [CDK makes it easy](https://docs
 
 ![wrk results](./docs/assets/wrk.png)
 
-Even under light load, this stack is pretty slow coming in at 515ms on average. I'm not exactly sure why but I think it might be something to do with the NAT instance.
+Even under light load, this stack is pretty slow, coming in at 515ms on average. I think this might be coming from the NAT Instance slowing down requests to SecretsManager, adding 500ms in some cases. X-Ray was pretty handy for adding visibility for this. Fun fact, the HTTP API Gateway doesn't support X-Ray.
 
 With more load, our application can support a throughput of 193 requests per second or about 16.7 million per day at 1000ms latency. I'm going to ignore those socket errors.
 
@@ -230,8 +230,10 @@ I wanted to see if I could create a stack with similar qualities with more moder
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
 1. Setup provisioned concurrency.
 
-### Done.
+### Done
 
+- Setup X-Ray tracing.
+- Load testing results with wrk.
 - Custom domain.
 - Setup a budget in cdk.
 - Moved setup the api and frontend in docker-compose. It's a bit slow though.

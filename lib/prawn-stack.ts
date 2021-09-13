@@ -153,6 +153,7 @@ export class PrawnStack extends cdk.Stack {
 				timeout: cdk.Duration.seconds(10),
 				vpc: vpc,
 				securityGroups: [lambdaSecurityGroup],
+				tracing: lambda.Tracing.ACTIVE,
 				bundling: {
 					externalModules: [
 						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
