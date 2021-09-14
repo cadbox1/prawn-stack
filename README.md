@@ -113,6 +113,8 @@ Then run it with:
 wrk -t1 -c1 -d60s https://prawn.cadell.dev/api/home
 ```
 
+Other tools like [hey](https://github.com/rakyll/hey) and [vegeta](https://github.com/tsenart/vegeta) offer more stats like percentiles. [How percentile approximation works (and why it's more useful than averages)](https://blog.timescale.com/blog/how-percentile-approximation-works-and-why-its-more-useful-than-averages/) talks about it more and as well as the [hackernews comments](https://hn.premii.com/#/comments/28526966).
+
 ## First Deploy
 
 Make sure you setup email forwarding for `admin` @yourdomain (e.g `admin@cadell.dev`) you receive the email from aws to validate that you own the domain so it can create a certificate.
