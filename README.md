@@ -95,7 +95,7 @@ I went with the NAT Instance because thankfully [CDK makes it easy](https://docs
 
 ![wrk results](./docs/assets/wrk.png)
 
-Even under light load, this stack is pretty slow, coming in at 515ms on average. I think this might be coming from the NAT Instance slowing down requests to SecretsManager, adding 500ms in some cases. X-Ray was pretty handy for adding visibility for this. Fun fact, the HTTP API Gateway doesn't support X-Ray.
+Even under light load, this stack is pretty slow, coming in at 515ms on average. I think this might be coming from the requests to SecretManager, through the NAT Instance but I'm not too sure. I setup AWS X-Ray and cached the secrets from SecretManager but it hasn't had much impact on latency. Fun fact, the HTTP API Gateway doesn't support X-Ray.
 
 With more load, our application can support a throughput of 193 requests per second or about 16.7 million per day at 1000ms latency. I'm going to ignore those socket errors.
 
@@ -174,7 +174,7 @@ You can put the values into PgAdmin to query the database.
 Run the following command to migrate the database with Flyway.
 
 ```
-docker-compose run flyway -url=jdbc:postgresql://[host]/postgres -user=[user] -password=[password] migrate
+HOST=xxx USER=xxx PASSWORD=xxx; docker-compose run flyway -url=jdbc:postgresql://$HOST/postgres -user=$USER -password=$PASSWORD migrate
 ```
 
 ### Setup a Custom Domain
@@ -232,6 +232,7 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Done
 
+- Cache secrets from SecretManager. Didn't make much difference to latency but it does reduce compute time which reduces costs.
 - Setup X-Ray tracing.
 - Load testing results with wrk.
 - Custom domain.

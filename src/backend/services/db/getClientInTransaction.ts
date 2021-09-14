@@ -23,7 +23,9 @@ const developmentDbConnectionConfig = {
 	port: 5432,
 };
 
-export async function getDbConnectionConfig() {
+let secretCredentials: string;
+
+export async function getDbConnectionConfig({ refetchSecret = false } = {}) {
 	if (developmentEnvironment) {
 		return developmentDbConnectionConfig;
 	}
@@ -34,15 +36,19 @@ export async function getDbConnectionConfig() {
 		throw new Error("Missing RDS_SECRET_NAME envirnonment variable");
 	}
 
-	const secretRdsData = await secretManager
-		.getSecretValue({ SecretId: rdsSecretName })
-		.promise();
+	if (!secretCredentials || refetchSecret) {
+		const secretRdsData = await secretManager
+			.getSecretValue({ SecretId: rdsSecretName })
+			.promise();
 
-	if (!secretRdsData.SecretString) {
-		throw new Error("Secret RDS data not found");
+		if (!secretRdsData.SecretString) {
+			throw new Error("Secret RDS data not found");
+		}
+
+		secretCredentials = secretRdsData.SecretString;
 	}
 
-	const { username, password } = JSON.parse(secretRdsData.SecretString);
+	const { username, password } = JSON.parse(secretCredentials);
 
 	return {
 		host: process.env.RDS_DATABASE_ENDPOINT,
@@ -64,9 +70,15 @@ export type GetClientInTransaction = (
 export const getClientInTransaction: GetClientInTransaction = async (
 	wrappedFunction: FunctionInTransaction
 ) => {
-	const dbConnectionConfig = await getDbConnectionConfig();
-	const client = new pg.Client(dbConnectionConfig);
-	client.connect();
+	let dbConnectionConfig = await getDbConnectionConfig();
+	let client = new pg.Client(dbConnectionConfig);
+	try {
+		await client.connect();
+	} catch (err) {
+		dbConnectionConfig = await getDbConnectionConfig({ refetchSecret: true });
+		client = new pg.Client(dbConnectionConfig);
+		await client.connect();
+	}
 	try {
 		await client.query("BEGIN");
 		// @ts-ignore
@@ -76,6 +88,6 @@ export const getClientInTransaction: GetClientInTransaction = async (
 		await client.query("ROLLBACK");
 		throw e;
 	} finally {
-		client.end();
+		await client.end();
 	}
 };
