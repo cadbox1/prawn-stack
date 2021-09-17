@@ -113,7 +113,11 @@ Then run it with:
 wrk -t1 -c1 -d60s https://prawn.cadell.dev/api/home
 ```
 
-Other tools like [hey](https://github.com/rakyll/hey) and [vegeta](https://github.com/tsenart/vegeta) offer more stats like percentiles. [How percentile approximation works (and why it's more useful than averages)](https://blog.timescale.com/blog/how-percentile-approximation-works-and-why-its-more-useful-than-averages/) talks about it more and as well as the [hackernews comments](https://hn.premii.com/#/comments/28526966).
+If you want to go further with load testing then maybe have a look at [vegeta](https://github.com/tsenart/vegeta), [wrk2](https://github.com/giltene/wrk2) or [k6](https://k6.io/).
+
+Load testing goes really deep apparently but I found [How percentile approximation works (and why it's more useful than averages)](https://blog.timescale.com/blog/how-percentile-approximation-works-and-why-its-more-useful-than-averages/) was a good introduction to percentiles, as well as the [hacker news comments](https://hn.premii.com/#/comments/28526966), which is where I found [How NOT to Measure Latency](https://www.youtube.com/watch?v=lJ8ydIuPFeU) by Gil Tene, which is amazing! There's also an [article](http://highscalability.com/blog/2015/10/5/your-load-generator-is-probably-lying-to-you-take-the-red-pi.html) similar to the talk but I much prefer the talk (and I don't usually watch talks).
+
+Vegeta, wrk2 and k6 all avoid the coordinated omission problem mentioned in Gil's talk, if you use constant throughput modes. [It's called something slightly different in k6](https://community.k6.io/t/is-k6-safe-from-the-coordinated-omission-problem/1484) though.
 
 ## First Deploy
 
