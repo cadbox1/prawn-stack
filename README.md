@@ -89,7 +89,7 @@ There's a few ways to get around this:
 
 This all feels very typical of AWS.
 
-I went with the NAT Instance because thankfully [CDK makes it easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances). Unfortunately, it does some to add some extra latency, ~300ms (150%) more, but I'll happily cop latency instead of money for this project.
+I went with the NAT Instance because thankfully [CDK makes it easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances). Unfortunately, it did seem to add some extra latency but I'll happily cop latency instead of money for this project.
 
 ## Load Testing
 
