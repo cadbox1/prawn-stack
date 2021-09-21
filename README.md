@@ -2,6 +2,8 @@
 
 🦐 🍤 🦐 🍤 🦐 🍤 🦐 🍤 🦐 🍤 🦐 🍤
 
+A Postgres, React, AWs and Node stack deployed with CDK in the free tier, almost.
+
 - **P**ostgres.
 - **R**eact.
 - **Aw**s.
