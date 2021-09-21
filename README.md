@@ -95,11 +95,7 @@ I went with the NAT Instance because thankfully [CDK makes it easy](https://docs
 
 ![wrk results](./docs/assets/wrk.png)
 
-Even under light load, this stack is pretty slow, coming in at 515ms on average. I think this might be coming from the requests to SecretManager, through the NAT Instance but I'm not too sure. I setup AWS X-Ray and cached the secrets from SecretManager but it hasn't had much impact on latency. Fun fact, the HTTP API Gateway doesn't support X-Ray.
-
-With more load, our application can support a throughput of 193 requests per second or about 16.7 million per day at 1000ms latency. I'm going to ignore those socket errors.
-
-I worked this out by running tests with increasingly higher concurrent requests until the latency reached 1000ms where we consider the application to have failed. If we think higher latencies are acceptable then we might be able to support even more throughput.
+With more load, our application can support a throughput of 570 requests per second on average or about 49.2 million per day at 350ms latency. 350ms is still pretty fast and if we had a higher tolerance for latency then this stack could probably do more.
 
 You can install [wrk](https://github.com/wg/wrk) with:
 
@@ -238,6 +234,7 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Done
 
+- Fixed the latency issue by tweaking cloudfront settings.
 - Cache secrets from SecretManager. Didn't make much difference to latency but it does reduce compute time which reduces costs.
 - Setup X-Ray tracing.
 - Load testing results with wrk.

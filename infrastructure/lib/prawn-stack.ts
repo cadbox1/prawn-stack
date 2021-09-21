@@ -204,11 +204,12 @@ export class PrawnStack extends cdk.Stack {
 			this,
 			"SiteDistribution",
 			{
+				priceClass: cloudfront.PriceClass.PRICE_CLASS_ALL,
 				viewerCertificate: cloudfront.ViewerCertificate.fromAcmCertificate(
 					certificate,
 					{
 						aliases: [customDomain],
-						securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1,
+						securityPolicy: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
 						sslMethod: cloudfront.SSLMethod.SNI,
 					}
 				),
