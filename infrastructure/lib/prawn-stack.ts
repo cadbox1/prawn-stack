@@ -48,6 +48,7 @@ interface PrawnStackProps extends cdk.StackProps {
 	customDomain: string;
 	yourPublicIpAddress: string;
 	emailAddressForBudget: string;
+	xRayTracingEnabled: boolean;
 	certificateArn: string;
 }
 
@@ -60,6 +61,7 @@ export class PrawnStack extends cdk.Stack {
 			yourPublicIpAddress,
 			emailAddressForBudget,
 			certificateArn,
+			xRayTracingEnabled,
 		} = props;
 
 		// ---- Backend ----
@@ -153,7 +155,9 @@ export class PrawnStack extends cdk.Stack {
 				timeout: cdk.Duration.seconds(10),
 				vpc: vpc,
 				securityGroups: [lambdaSecurityGroup],
-				tracing: lambda.Tracing.ACTIVE,
+				tracing: xRayTracingEnabled
+					? lambda.Tracing.ACTIVE
+					: lambda.Tracing.DISABLED,
 				bundling: {
 					externalModules: [
 						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
