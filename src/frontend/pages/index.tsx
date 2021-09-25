@@ -6,7 +6,9 @@ import useSWR from "swr";
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function Index() {
-	const { data, error } = useSWR("/api/home", fetcher);
+	const { data, error } = useSWR("/api/home", fetcher, {
+		revalidateOnFocus: false,
+	});
 
 	return (
 		<>
