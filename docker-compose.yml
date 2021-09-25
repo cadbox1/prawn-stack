@@ -30,6 +30,7 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 50
     volumes:
       - pgadmin:/root/.pgadmin
     ports:
