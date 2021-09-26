@@ -2,6 +2,8 @@ import * as cdk from "@aws-cdk/core";
 import * as rds from "@aws-cdk/aws-rds";
 import * as ec2 from "@aws-cdk/aws-ec2";
 import * as secrets from "@aws-cdk/aws-secretsmanager";
+import * as events from "@aws-cdk/aws-events";
+import * as targets from "@aws-cdk/aws-events-targets";
 import * as lambda from "@aws-cdk/aws-lambda";
 import * as lambdaNodeJs from "@aws-cdk/aws-lambda-nodejs";
 import * as apigw from "@aws-cdk/aws-apigatewayv2";
@@ -145,6 +147,12 @@ export class PrawnStack extends cdk.Stack {
 		});
 
 		// Create Lambda and API Gateway
+		const environment = {
+			RDS_DATABASE_ENDPOINT: rdsInstance.instanceEndpoint.hostname,
+			RDS_SECRET_NAME: id + "-rds-credentials",
+			BASE_URL: `https://${customDomain}/api`,
+		};
+
 		const lambdaApp = new lambdaNodeJs.NodejsFunction(
 			this,
 			"prawn-stack-lambda",
@@ -164,10 +172,7 @@ export class PrawnStack extends cdk.Stack {
 						"pg-native", // errors without this
 					],
 				},
-				environment: {
-					RDS_DATABASE_ENDPOINT: rdsInstance.instanceEndpoint.hostname,
-					RDS_SECRET_NAME: id + "-rds-credentials",
-				},
+				environment,
 			}
 		);
 		databaseCredentialsSecret.grantRead(lambdaApp);
@@ -183,6 +188,31 @@ export class PrawnStack extends cdk.Stack {
 		new cdk.CfnOutput(this, "API Gateway URL", {
 			value: httpApi.apiEndpoint || "",
 		});
+
+		// scheduled rollup
+		const activityHourlyRollupTrigger = new lambdaNodeJs.NodejsFunction(
+			this,
+			"prawn-stack-activityHourlyRollupTrigger",
+			{
+				runtime: lambda.Runtime.NODEJS_14_X,
+				entry:
+					"src/backend/services/scheduled/trigger-activity-hourly-rollup.ts",
+				handler: "handler",
+				timeout: cdk.Duration.seconds(10),
+				bundling: {
+					externalModules: [
+						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
+						"pg-native", // errors without this
+					],
+				},
+				environment,
+			}
+		);
+
+		const rule = new events.Rule(this, "Prawn hourly activity rollup", {
+			schedule: events.Schedule.cron({ minute: "0", hour: "*" }),
+		});
+		rule.addTarget(new targets.LambdaFunction(activityHourlyRollupTrigger));
 
 		// ---- Frontend ----
 

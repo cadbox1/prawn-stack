@@ -117,6 +117,22 @@ Load testing goes really deep apparently but I found [How percentile approximati
 
 Vegeta, wrk2 and k6 all avoid the coordinated omission problem mentioned in Gil's talk, if you use constant throughput modes. [It's called something slightly different in k6](https://community.k6.io/t/is-k6-safe-from-the-coordinated-omission-problem/1484) though.
 
+## How does it work?
+
+![sequence diagram](./docs/assets/diagram.png)
+
+[Mermaid Diagram](https://mermaid-js.github.io/mermaid-live-editor/edit#eyJjb2RlIjoic2VxdWVuY2VEaWFncmFtXG4gICAgYXV0b251bWJlclxuICAgIHBhcnRpY2lwYW50IFVzZXJcbiAgICBwYXJ0aWNpcGFudCBDcm9uXG4gICAgcGFydGljaXBhbnQgQVBJXG4gICAgcGFydGljaXBhbnQgRGF0YWJhc2VcbiAgICBVc2VyLT4-QVBJOiBJJ20gaGVyZSwgaG93IG1hbnkgcGFnZXZpZXdzIGhhdmUgeW91IGhhZD9cbiAgICBBUEktPj5EYXRhYmFzZTogU2VsZWN0IGNvdW50IGZyb20gYWN0aXZpdHkgdGFibGVcbiAgICBEYXRhYmFzZS0-PkFQSTogVGhpcyBtYW55XG4gICAgQVBJLT4-RGF0YWJhc2U6IFRoYW5rcywgYWRkIG9uZSBtb3JlIHBhZ2V2aWV3IHBsZWFzZVxuICAgIERhdGFiYXNlLT4-QVBJOiBEb25lXG4gICAgQVBJLT4-VXNlcjogV2UndmUgaGFkIHRoaXMgbWFueSBwYWdldmlld3NcblxuICAgIFVzZXItPj5BUEk6IEhvdyBtYW55IHBhZ2V2aWV3cyBoYXZlIHdlIGhhZCBwZXIgaG91cj9cbiAgICBBUEktPj5EYXRhYmFzZTogU2VsZWN0ICogZnJvbSBhY3Rpdml0eV9ob3VybHlfcm9sbHVwIHRhYmxlXG4gICAgRGF0YWJhc2UtPj5BUEk6IEhlcmUncyB0aGUgcm93c1xuICAgIEFQSS0-PlVzZXI6IEhlcmUncyB0aGUganNvblxuXG4gICAgb3B0IFJvbGx1cHMgIFxuICAgIENyb24tPj5BUEk6IEl0J3MgYmVlbiBhbiBob3VyLCBjYW4geW91IHBsZWFzZSByb2xsdXAgdGhlIGFjdGl2aXR5IHRhYmxlXG4gICAgQVBJLT4-RGF0YWJhc2U6IEhvdyBtYW55IHBhZ2V2aWV3cyBoYXZlIHdlIGhhZCBpbiB0aGUgbGFzdCBob3VyXG4gICAgRGF0YWJhc2UtPj5BUEk6IFRoaXMgbWFueVxuICAgIEFQSS0-PkRhdGFiYXNlOiBJbnNlcnQgaW50byBhY3Rpdml0eV9ob3VybHlfcm9sbHVwIHRhYmxlXG4gICAgRGF0YWJhc2UtPj5BUEk6IERvbmVcbiAgICBlbmRcbiAgIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRhcmtcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0)
+
+### Performant Analytics with Rollups
+
+We have a graph that shows the pageviews per hour and there's a few ways to make that happen.
+
+1. Calculate the aggregates when they're requested. This is the easiest and will be up to date but it can be slow and resource intensive if it's requested often.
+1. Setup a materialised view and refresh it on an interval. This is a natural extension of the first solution but will be much faster at the cost consistency because it might be stale. This also might be resource intensive if the table is big enough or the aggregates are complicated enough.
+1. Iteratively calculate the aggregates and store them manually. The materialised view solution might recalculate aggregates that aren't going to change because they might be in the past. E.g the pageviews for last month aren't going to change to why recalculate them. This is the approach we've taken here.
+
+I would recommend starting with the first one then escalating to more complicated solutions as required but I wanted to explore the third solution with this project.
+
 ## First Deploy
 
 Make sure you setup email forwarding for `admin` @yourdomain (e.g `admin@cadell.dev`) you receive the email from aws to validate that you own the domain so it can create a certificate.
@@ -223,7 +239,6 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Ideas
 
-1. Setup a rollup table and iteratively refresh it as a materialized view solution.
 1. Graph the number of events over time with something like Nivo.
 1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
 1. Setup MDX on NextJS pages and add some more copy about the project.
@@ -234,6 +249,7 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Done
 
+- Setup an hourly activity rollups for analytics.
 - Setup activity table.
 - Fixed the latency issue by tweaking cloudfront settings.
 - Cache secrets from SecretManager. Didn't make much difference to latency but it does reduce compute time which reduces costs.

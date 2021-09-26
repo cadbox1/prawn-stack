@@ -31,6 +31,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 50
+      PGADMIN_CONFIG_FILE_LOG_LEVEL: 50
     volumes:
       - pgadmin:/root/.pgadmin
     ports:
@@ -41,6 +42,8 @@ services:
 
   api:
     image: mhart/alpine-node:14
+    environment:
+      PORT: 3001
     working_dir: /home/node/app
     volumes:
       - ./:/home/node/app:delegated
