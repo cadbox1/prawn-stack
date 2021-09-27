@@ -41,28 +41,36 @@ services:
     restart: unless-stopped
 
   api:
-    image: mhart/alpine-node:14
-    environment:
-      PORT: 3001
+    image: prawn-node
+    build:
+      context: .
+      dockerfile: prawn-node.Dockerfile
     working_dir: /home/node/app
     volumes:
-      - ./:/home/node/app:delegated
+      - ./src/:/home/node/app/src/:delegated
+      - ./tsconfig.json/:/home/node/app/tsconfig.json:delegated
+    command: "yarn start"
+    environment:
+      PORT: 3001
     ports:
       - "3001:3001"
-    command: "yarn start"
     depends_on:
       - postgres
     networks:
       - default
 
   frontend:
-    image: mhart/alpine-node:14
+    image: prawn-node
+    build:
+      context: .
+      dockerfile: prawn-node.Dockerfile
     working_dir: /home/node/app
     volumes:
-      - ./:/home/node/app:delegated
+      - ./src/:/home/node/app/src/:delegated
+      - ./tsconfig.json/:/home/node/app/tsconfig.json:delegated
+    command: "yarn run dev"
     ports:
       - "3000:3000"
-    command: "yarn run dev"
     depends_on:
       - api
     networks:

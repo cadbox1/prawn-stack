@@ -2,7 +2,7 @@
 
 🦐 🍤 🦐 🍤 🦐 🍤 🦐 🍤 🦐 🍤 🦐 🍤
 
-A Postgres, React, AWs and Node stack deployed with CDK in the free tier, almost.
+A page view counter powered by a Postgres, React, AWs and Node (PRAwN) deployed in the free tier (almost) using CDK.
 
 - **P**ostgres.
 - **R**eact.
@@ -22,7 +22,7 @@ We're also using Typescript and NextJS for the frontend.
 
 ## Scripts
 
-- `docker-compose up` starts postgres, the node api development server and the nextjs development server.
+- `docker-compose up --build` starts postgres, the node api development server and the nextjs development server.
 - `yarn start` run the development Node server.
 - `yarn dev` run the NextJS development server.
 - `yarn test` perform the jest unit tests.
@@ -39,13 +39,19 @@ We're also using Typescript and NextJS for the frontend.
    ```
 1. Run docker-compose.
    ```
-   docker-compose up
+   docker-compose up --build
    ```
    This will bring up:
    - Postgres database and run migrations on it using Flyway.
    - PgAdmin to access the Postgres database. Available at [http://localhost:5050/](http://localhost:5050/).
    - Node API development server. Available at [http://localhost:3001/api/](http://localhost:3001/api/).
    - NextJS development server for the frontend. Available at [http://localhost:3000](http://localhost:3000.
+
+Going forward, you can make this faster by skipping the build step. You only need it if your dependencies change.
+
+```
+docker-compose up
+```
 
 ### Accessing the Local Database
 
