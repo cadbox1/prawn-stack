@@ -56,7 +56,6 @@ export default function Index() {
 				<div style={{ height: "400px", maxWidth: "600px" }}>
 					<ResponsiveLine
 						data={graphData}
-						useMesh
 						margin={{ top: 10, right: 70, bottom: 100, left: 50 }}
 						xScale={{ type: "time" }}
 						yScale={{
@@ -75,6 +74,7 @@ export default function Index() {
 							legendOffset: -40,
 							legendPosition: "middle",
 						}}
+						useMesh
 						xFormat={`time:${dateFormat}`}
 						pointSize={8}
 					/>
