@@ -57,7 +57,7 @@ export default function Index() {
 					<ResponsiveLine
 						data={graphData}
 						useMesh
-						margin={{ top: 10, right: 100, bottom: 100, left: 50 }}
+						margin={{ top: 10, right: 70, bottom: 100, left: 50 }}
 						xScale={{ type: "time" }}
 						yScale={{
 							type: "linear",
@@ -66,8 +66,8 @@ export default function Index() {
 						axisBottom={{
 							legend: "time",
 							format: dateFormat,
-							legendOffset: 85,
-							tickRotation: 35,
+							legendOffset: 90,
+							tickRotation: 45,
 							legendPosition: "middle",
 						}}
 						axisLeft={{
