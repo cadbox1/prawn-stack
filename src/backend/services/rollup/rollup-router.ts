@@ -7,7 +7,7 @@ router.get("/activity-hourly-rollup", async (req, res) => {
 	getClientInTransaction(async (client) => {
 		const { rows: activityHourlyRollupRows } = await client.query(
 			`select * from activity_hourly_rollup 
-			order by datetime desc
+			order by id desc
 			limit 100`
 		);
 

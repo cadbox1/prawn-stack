@@ -208,11 +208,39 @@ export class PrawnStack extends cdk.Stack {
 				environment,
 			}
 		);
+		const activityHourlyRollupTriggerRule = new events.Rule(
+			this,
+			"Prawn hourly activity rollup",
+			{
+				schedule: events.Schedule.cron({ minute: "0", hour: "*" }),
+			}
+		);
+		activityHourlyRollupTriggerRule.addTarget(
+			new targets.LambdaFunction(activityHourlyRollupTrigger)
+		);
 
-		const rule = new events.Rule(this, "Prawn hourly activity rollup", {
+		// scheduled pageview
+		const pageviewTrigger = new lambdaNodeJs.NodejsFunction(
+			this,
+			"prawn-stack-pageviewTrigger",
+			{
+				runtime: lambda.Runtime.NODEJS_14_X,
+				entry: "src/backend/services/scheduled/trigger-pageview.ts",
+				handler: "handler",
+				timeout: cdk.Duration.seconds(10),
+				bundling: {
+					externalModules: [
+						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
+						"pg-native", // errors without this
+					],
+				},
+				environment,
+			}
+		);
+		const pageviewTriggerRule = new events.Rule(this, "Prawn hourly pageview", {
 			schedule: events.Schedule.cron({ minute: "0", hour: "*" }),
 		});
-		rule.addTarget(new targets.LambdaFunction(activityHourlyRollupTrigger));
+		pageviewTriggerRule.addTarget(new targets.LambdaFunction(pageviewTrigger));
 
 		// ---- Frontend ----
 

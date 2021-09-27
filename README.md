@@ -240,15 +240,16 @@ I wanted to see if I could create a stack with similar qualities with more moder
 ### Ideas
 
 1. Graph the number of events over time with something like Nivo.
-1. Setup a cron to hit an endpoint every 5 minutes. This can also act as a monitoring solution.
 1. Setup MDX on NextJS pages and add some more copy about the project.
 1. Setup integration tests.
+1. Email me when the scheduled pageview fails for basic monitoring.
 1. Set a maximum Lambda concurrency.
 1. Use [serverless-postgres](https://github.com/MatteoGioioso/serverless-pg) for connecting to postgres.
 1. Setup provisioned concurrency.
 
 ### Done
 
+- Setup an hourly pageview.
 - Setup an hourly activity rollups for analytics.
 - Setup activity table.
 - Fixed the latency issue by tweaking cloudfront settings.
