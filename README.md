@@ -239,7 +239,6 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Ideas
 
-1. Graph the number of events over time with something like Nivo.
 1. Setup MDX on NextJS pages and add some more copy about the project.
 1. Setup integration tests.
 1. Email me when the scheduled pageview fails for basic monitoring.
@@ -249,6 +248,7 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Done
 
+- Graph the pageviews per hour with Nivo.
 - Setup an hourly pageview.
 - Setup an hourly activity rollups for analytics.
 - Setup activity table.

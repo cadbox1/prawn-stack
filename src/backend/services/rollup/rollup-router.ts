@@ -8,7 +8,7 @@ router.get("/activity-hourly-rollup", async (req, res) => {
 		const { rows: activityHourlyRollupRows } = await client.query(
 			`select * from activity_hourly_rollup 
 			order by id desc
-			limit 100`
+			limit 150`
 		);
 
 		res.set("Cache-Control", "public, max-age=300");
