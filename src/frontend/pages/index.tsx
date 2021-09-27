@@ -57,7 +57,7 @@ export default function Index() {
 					<ResponsiveLine
 						data={graphData}
 						margin={{ top: 10, right: 70, bottom: 100, left: 50 }}
-						xScale={{ type: "time" }}
+						xScale={{ type: "time", precision: "hour" }}
 						yScale={{
 							type: "linear",
 							min: 0,
@@ -67,6 +67,7 @@ export default function Index() {
 							format: dateFormat,
 							legendOffset: 90,
 							tickRotation: 45,
+							tickValues: "every 2 hours",
 							legendPosition: "middle",
 						}}
 						axisLeft={{
