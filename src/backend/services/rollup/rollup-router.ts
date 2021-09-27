@@ -11,7 +11,7 @@ router.get("/activity-hourly-rollup", async (req, res) => {
 			limit 100`
 		);
 
-		res.set("Cache-Control", "no-store, max-age=0");
+		res.set("Cache-Control", "public, max-age=300");
 		res.json({ data: activityHourlyRollupRows });
 	});
 });
