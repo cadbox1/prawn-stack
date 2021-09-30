@@ -241,7 +241,7 @@ export class PrawnStack extends cdk.Stack {
 			}
 		);
 		const pageviewTriggerRule = new events.Rule(this, "Prawn hourly pageview", {
-			schedule: events.Schedule.cron({ minute: "0", hour: "*" }),
+			schedule: events.Schedule.cron({ minute: "30", hour: "*" }),
 		});
 		pageviewTriggerRule.addTarget(new targets.LambdaFunction(pageviewTrigger));
 
