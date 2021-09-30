@@ -7,9 +7,9 @@ const router = express.Router();
 
 router.get("/activity-hourly-rollup", async (req, res) => {
 	try {
-		const response = await triggerActivityHourlyRollup();
-		console.log("response:", response.data);
-		res.json(response.data);
+		const responseData = await triggerActivityHourlyRollup();
+		console.log("responseData:", responseData);
+		res.json(responseData);
 	} catch (err) {
 		console.log("error:", err);
 		res.json(err);
@@ -18,9 +18,9 @@ router.get("/activity-hourly-rollup", async (req, res) => {
 
 router.get("/pageview", async (req, res) => {
 	try {
-		const response = await triggerPageview();
-		console.log("response:", response.data);
-		res.json(response.data);
+		const responseData = await triggerPageview();
+		console.log("responseData:", responseData);
+		res.json(responseData);
 	} catch (err) {
 		console.log("error:", err);
 		res.json(err);
