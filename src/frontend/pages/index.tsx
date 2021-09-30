@@ -67,7 +67,6 @@ export default function Index() {
 							format: dateFormat,
 							legendOffset: 90,
 							tickRotation: 45,
-							tickValues: "every 2 hours",
 							legendPosition: "middle",
 						}}
 						axisLeft={{
