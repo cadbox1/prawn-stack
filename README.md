@@ -56,9 +56,7 @@ docker-compose up
 ### Accessing the Local Database
 
 1. Go to [http://localhost:5050/](http://localhost:5050/).
-1. Login with:
-   - **Email:** pgadmin4@pgadmin.org
-   - **Password:** admin
+1. Set a master password.
 1. Click Add New Server.
 1. Fill in the local server details.
    - General
