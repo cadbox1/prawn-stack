@@ -56,7 +56,7 @@ export default function Index() {
 				<div style={{ height: "400px", maxWidth: "600px" }}>
 					<ResponsiveLine
 						data={graphData}
-						margin={{ top: 10, right: 70, bottom: 100, left: 50 }}
+						margin={{ top: 10, right: 70, bottom: 110, left: 70 }}
 						xScale={{ type: "time", precision: "hour" }}
 						yScale={{
 							type: "linear",
@@ -65,13 +65,13 @@ export default function Index() {
 						axisBottom={{
 							legend: "time",
 							format: dateFormat,
-							legendOffset: 90,
+							legendOffset: 100,
 							tickRotation: 45,
 							legendPosition: "middle",
 						}}
 						axisLeft={{
 							legend: "page views per hour",
-							legendOffset: -40,
+							legendOffset: -60,
 							legendPosition: "middle",
 						}}
 						useMesh
