@@ -254,6 +254,7 @@ I wanted to see if I could create a stack with similar qualities with more moder
 
 ### Done
 
+- Use arm64 in lambdas.
 - Optimise the docker environment by excluding node_modules from the bind mount.
 - Graph the pageviews per hour with Nivo.
 - Setup an hourly pageview.

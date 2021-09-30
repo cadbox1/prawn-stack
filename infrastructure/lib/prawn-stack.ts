@@ -158,6 +158,7 @@ export class PrawnStack extends cdk.Stack {
 			"prawn-stack-lambda",
 			{
 				runtime: lambda.Runtime.NODEJS_14_X,
+				architectures: [lambda.Architecture.ARM_64],
 				entry: "src/backend/lambda.ts",
 				handler: "handler",
 				timeout: cdk.Duration.seconds(10),
@@ -195,6 +196,7 @@ export class PrawnStack extends cdk.Stack {
 			"prawn-stack-activityHourlyRollupTrigger",
 			{
 				runtime: lambda.Runtime.NODEJS_14_X,
+				architectures: [lambda.Architecture.ARM_64],
 				entry:
 					"src/backend/services/scheduled/trigger-activity-hourly-rollup.ts",
 				handler: "handler",
@@ -225,6 +227,7 @@ export class PrawnStack extends cdk.Stack {
 			"prawn-stack-pageviewTrigger",
 			{
 				runtime: lambda.Runtime.NODEJS_14_X,
+				architectures: [lambda.Architecture.ARM_64],
 				entry: "src/backend/services/scheduled/trigger-pageview.ts",
 				handler: "handler",
 				timeout: cdk.Duration.seconds(10),
