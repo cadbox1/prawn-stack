@@ -31,8 +31,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: "False"
-      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 50
-      PGADMIN_CONFIG_FILE_LOG_LEVEL: 50
+    logging:
+      driver: "none"
     volumes:
       - pgadmin:/var/lib/pgadmin
     ports:
