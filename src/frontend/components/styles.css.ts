@@ -16,7 +16,7 @@ globalStyle(`body`, {
 });
 
 export const containerClass = style({
-	maxWidth: "600px",
+	maxWidth: "800px",
 	margin: "0 auto",
 	paddingLeft: "2rem",
 	paddingRight: "2rem",
@@ -30,7 +30,7 @@ export const h1Class = style([
 	headingClass,
 	{
 		content: "hello",
-		fontSize: "38px",
+		fontSize: "36px",
 	},
 ]);
 
@@ -38,11 +38,45 @@ export const h2Class = style([
 	headingClass,
 	{
 		fontSize: "24px",
+		marginTop: "36px",
 	},
 ]);
 
-export const pClass = style({
-	fontFamily: vars.font.body,
+export const h3Class = style([
+	headingClass,
+	{
+		fontSize: "21px",
+	},
+]);
+
+export const baseClass = style({
+	fontSize: "18px",
+	lineHeight: "28px",
+});
+
+export const pClass = style([
+	baseClass,
+	{
+		fontFamily: vars.font.body,
+	},
+]);
+
+export const aClass = style([
+	baseClass,
+	{
+		fontFamily: vars.font.body,
+	},
+]);
+
+export const liClass = style([
+	baseClass,
+	{
+		fontFamily: vars.font.body,
+	},
+]);
+
+export const imgClass = style({
+	maxWidth: "100%",
 });
 
 export const headingAnchorClass = style({
