@@ -1,5 +1,6 @@
 import useSWR from "swr";
 import { fetcher } from "./fetcher";
+import { H1 } from "./H1";
 
 export const PageViews = () => {
 	const home = useSWR("/api/home", fetcher, {
@@ -7,7 +8,7 @@ export const PageViews = () => {
 	});
 
 	return (
-		<h1>
+		<H1>
 			{`Page views: ${
 				home.error
 					? "Error loading page views"
@@ -15,6 +16,6 @@ export const PageViews = () => {
 					? "loading..."
 					: home.data.pageViews
 			}`}
-		</h1>
+		</H1>
 	);
 };

@@ -1,6 +1,8 @@
 import { ResponsiveLine } from "@nivo/line";
 import useSWR from "swr";
 import { fetcher } from "./fetcher";
+import { H2 } from "./H2";
+import { P } from "./P";
 
 const dateFormat = "%Y-%m-%d %H:%M";
 
@@ -26,8 +28,8 @@ export const Trends = () => {
 
 	return (
 		<div>
-			<h2>Trends</h2>
-			<p>Page views per hour over time</p>
+			<H2>Trends</H2>
+			<P>Page views per hour over time</P>
 			<div style={{ height: "400px", maxWidth: "600px" }}>
 				<ResponsiveLine
 					data={graphData}
