@@ -114,7 +114,6 @@ export const imgClass = style({
 export const headingAnchorClass = style({
 	float: "left",
 	marginLeft: "-20px",
-	paddingRight: "4px",
 	textDecoration: "none",
 });
 
