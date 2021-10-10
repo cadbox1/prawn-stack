@@ -47,16 +47,6 @@ We have a graph that shows the pageviews per hour and there's a few ways to make
 
 I would recommend starting with the first one then escalating to more complicated solutions as required but I wanted to explore the third solution with this project.
 
-## Almost Completely in the Free Tier
-
-![bill](../assets/bill.png)
-
-The only thing you have to pay for is Secrets Manager which is \$0.4/month.
-
-When the free tier ends after 12 months you could move this onto a t3.micro for rds at $0.028/h, $21/month) and a t3.nano for ec2 (used as a cheap NAT) at $0.0066/h, $4.95/month.
-
-There's also a budget configured with cdk to alert you when you spend more than \$1 usd to remind you when the free tier ends.
-
 ## Serverless and Lambda
 
 I'm a _serverless skeptic_. A few timely things swayed me to try Lambda for this project.
@@ -75,7 +65,17 @@ There's a few ways to get around this:
 
 This all feels very typical of AWS.
 
-I went with the NAT Instance because thankfully [CDK makes it easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances). Unfortunately, it did seem to add some extra latency but I'll happily cop latency instead of money for this project.
+I went with the NAT Instance because thankfully [CDK makes it easy](https://docs.aws.amazon.com/cdk/api/latest/docs/aws-ec2-readme.html#using-nat-instances).
+
+## Almost Completely in the Free Tier
+
+![bill](../assets/bill.png)
+
+The only thing you have to pay for is Secrets Manager which is \$0.4/month.
+
+When the free tier ends after 12 months you could move this onto a t3.micro for rds at $0.028/h, $21/month) and a t3.nano for ec2 (used as a cheap NAT) at $0.0066/h, $4.95/month.
+
+There's also a budget configured with cdk to alert you when you spend more than \$1 usd to remind you when the free tier ends.
 
 ## Load Testing
 
