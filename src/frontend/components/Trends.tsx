@@ -1,8 +1,8 @@
 import { ResponsiveLine } from "@nivo/line";
 import useSWR from "swr";
 import { fetcher } from "./fetcher";
-import { H2 } from "./H2";
-import { P } from "./P";
+import { H2 } from "./core/H2";
+import { P } from "./core/P";
 
 const dateFormat = "%Y-%m-%d %H:%M";
 

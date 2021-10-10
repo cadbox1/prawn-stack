@@ -1,6 +1,6 @@
 import useSWR from "swr";
 import { fetcher } from "./fetcher";
-import { H1 } from "./H1";
+import { H1 } from "./core/H1";
 
 export const PageViews = () => {
 	const home = useSWR("/api/home", fetcher, {
