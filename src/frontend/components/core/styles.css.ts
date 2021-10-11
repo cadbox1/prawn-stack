@@ -18,7 +18,7 @@ globalStyle(`body`, {
 export const containerClass = style({
 	maxWidth: "800px",
 	margin: "0 auto",
-	padding: "0 24px",
+	padding: "0 18px",
 });
 
 export const headingClass = style({
@@ -31,7 +31,7 @@ export const headingClass = style({
 export const h1Class = style([
 	headingClass,
 	{
-		fontSize: "36px",
+		fontSize: "34px",
 	},
 ]);
 
@@ -73,15 +73,23 @@ export const aClass = style([
 ]);
 
 export const ulClass = style({
-	marginTop: 0,
-	marginBottom: "12px",
+	margin: "0 0 12px 0",
 	paddingLeft: "32px",
+	selectors: {
+		[`ul &, ol &`]: {
+			margin: 0,
+		},
+	},
 });
 
 export const olClass = style({
-	marginTop: 0,
-	marginBottom: "12px",
+	margin: "0 0 12px 0",
 	paddingLeft: "32px",
+	selectors: {
+		[`ul &, ol &`]: {
+			margin: 0,
+		},
+	},
 });
 
 export const liClass = style([
@@ -113,12 +121,13 @@ export const imgClass = style({
 
 export const headingAnchorClass = style({
 	float: "left",
-	marginLeft: "-20px",
+	marginLeft: "-16px",
 	textDecoration: "none",
 });
 
 export const headingAnchorSpanClass = style({
-	fontSize: "16px",
+	fontSize: "12px",
+	verticalAlign: "middle",
 	visibility: "hidden",
 	selectors: {
 		[`${headingClass}:hover ${headingAnchorClass} &, ${headingClass}:focus ${headingAnchorClass} &`]: {

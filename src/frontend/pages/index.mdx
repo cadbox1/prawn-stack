@@ -71,11 +71,13 @@ I went with the NAT Instance because thankfully [CDK makes it easy](https://docs
 
 ![bill](../assets/bill.png)
 
-The only thing you have to pay for is Secrets Manager which is \$0.4/month.
+<!-- prettier-ignore -->
+The only thing you have to pay for is Secrets Manager which is $0.4/month.
 
 When the free tier ends after 12 months you could move this onto a t3.micro for rds at $0.028/h, $21/month) and a t3.nano for ec2 (used as a cheap NAT) at $0.0066/h, $4.95/month.
 
-There's also a budget configured with cdk to alert you when you spend more than \$1 usd to remind you when the free tier ends.
+<!-- prettier-ignore -->
+There's also a budget configured with cdk to alert you when you spend more than $1 usd to remind you when the free tier ends.
 
 ## Load Testing
 
