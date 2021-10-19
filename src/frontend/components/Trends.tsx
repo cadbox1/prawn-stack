@@ -1,10 +1,20 @@
-import { ResponsiveLine } from "@nivo/line";
 import useSWR from "swr";
 import { fetcher } from "./fetcher";
 import { H2 } from "./core/H2";
 import { P } from "./core/P";
+import {
+	AnimatedAxis,
+	AnimatedLineSeries,
+	XYChart,
+	Tooltip,
+} from "@visx/xychart";
+import { format } from "date-fns";
+import { trendsLabel } from "./core/styles.css";
 
-const dateFormat = "%Y-%m-%d %H:%M";
+const accessors = {
+	xAccessor: (d) => d.x,
+	yAccessor: (d) => d.y,
+};
 
 export const Trends = () => {
 	const hourlyActivityRollup = useSWR(
@@ -14,47 +24,59 @@ export const Trends = () => {
 			revalidateOnFocus: false,
 		}
 	);
-	const graphData = hourlyActivityRollup.data
-		? [
-				{
-					id: "pageview",
-					data: hourlyActivityRollup.data.data.map((row) => ({
-						x: new Date(row.datetime),
-						y: row.count,
-					})),
-				},
-		  ]
-		: [{ id: "pageview", data: [] }];
+
+	const data = hourlyActivityRollup.data
+		? hourlyActivityRollup.data.data.map((row) => ({
+				x: format(new Date(row.datetime), "p dd-MM-yy"),
+				y: row.count,
+		  }))
+		: [];
 
 	return (
 		<div>
 			<H2>Trends</H2>
 			<P>Page views per hour over time</P>
 			<div style={{ height: "400px", maxWidth: "600px" }}>
-				<ResponsiveLine
-					data={graphData}
-					margin={{ top: 10, right: 70, bottom: 110, left: 70 }}
-					xScale={{ type: "time", precision: "hour" }}
-					yScale={{
-						type: "linear",
-						min: 0,
-					}}
-					axisBottom={{
-						legend: "time",
-						format: dateFormat,
-						legendOffset: 100,
-						tickRotation: 45,
-						legendPosition: "middle",
-					}}
-					axisLeft={{
-						legend: "page views per hour",
-						legendOffset: -60,
-						legendPosition: "middle",
-					}}
-					useMesh
-					xFormat={`time:${dateFormat}`}
-					pointSize={8}
-				/>
+				<XYChart
+					height={400}
+					xScale={{ type: "band", padding: -1 }}
+					yScale={{ type: "linear" }}
+				>
+					<AnimatedAxis
+						orientation="left"
+						label="page views per hour"
+						labelClassName={trendsLabel}
+					/>
+					<AnimatedAxis
+						orientation="bottom"
+						label="time (local timezone)"
+						strokeWidth={1}
+						labelClassName={trendsLabel}
+					/>
+					<AnimatedLineSeries
+						dataKey="Page views per hour"
+						data={data}
+						{...accessors}
+					/>
+					<Tooltip
+						snapTooltipToDatumX
+						snapTooltipToDatumY
+						showHorizontalCrosshair
+						showVerticalCrosshair
+						showSeriesGlyphs
+						renderTooltip={({ tooltipData, colorScale }) => (
+							<div>
+								<div
+									style={{ color: colorScale(tooltipData.nearestDatum.key) }}
+								>
+									{tooltipData.nearestDatum.key}
+								</div>
+								<div>{accessors.yAccessor(tooltipData.nearestDatum.datum)}</div>
+								<div>{accessors.xAccessor(tooltipData.nearestDatum.datum)}</div>
+							</div>
+						)}
+					/>
+				</XYChart>
 			</div>
 		</div>
 	);

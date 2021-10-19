@@ -50,15 +50,21 @@ export const h3Class = style([
 	},
 ]);
 
-export const baseClass = style({
-	fontSize: "18px",
-	lineHeight: "1.6",
+export const fontBase = style({
+	fontFamily: vars.font.body,
 });
+
+export const baseClass = style([
+	fontBase,
+	{
+		fontSize: "18px",
+		lineHeight: "1.6",
+	},
+]);
 
 export const pClass = style([
 	baseClass,
 	{
-		fontFamily: vars.font.body,
 		marginTop: "0",
 		marginBottom: "12px",
 	},
@@ -67,7 +73,6 @@ export const pClass = style([
 export const aClass = style([
 	baseClass,
 	{
-		fontFamily: vars.font.body,
 		textDecoration: "none",
 	},
 ]);
@@ -135,3 +140,11 @@ export const headingAnchorSpanClass = style({
 		},
 	},
 });
+
+export const trendsLabel = style([
+	fontBase,
+	{
+		fontSize: "12px",
+		fontWeight: 500,
+	},
+]);
