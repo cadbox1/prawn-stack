@@ -26,10 +26,16 @@ export const Trends = () => {
 	);
 
 	const data = hourlyActivityRollup.data
-		? hourlyActivityRollup.data.data.map((row) => ({
-				x: format(new Date(row.datetime), "p dd-MM-yyyy"),
-				y: row.count,
-		  }))
+		? hourlyActivityRollup.data.data
+				.map(({ datetime, count }) => ({
+					x: new Date(datetime),
+					y: count,
+				}))
+				.sort((a, b) => a.x - b.x)
+				.map(({ x, y }) => ({
+					x: format(x, "p dd-MM-yyyy"),
+					y,
+				}))
 		: [];
 
 	return (
