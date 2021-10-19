@@ -27,7 +27,7 @@ export const Trends = () => {
 
 	const data = hourlyActivityRollup.data
 		? hourlyActivityRollup.data.data.map((row) => ({
-				x: format(new Date(row.datetime), "p dd-MM-yy"),
+				x: format(new Date(row.datetime), "p dd-MM-yyyy"),
 				y: row.count,
 		  }))
 		: [];
@@ -36,11 +36,11 @@ export const Trends = () => {
 		<div>
 			<H2>Trends</H2>
 			<P>Page views per hour over time</P>
-			<div style={{ height: "400px", maxWidth: "600px" }}>
+			<div style={{ height: "500px" }}>
 				<XYChart
-					height={400}
 					xScale={{ type: "band", padding: -1 }}
 					yScale={{ type: "linear" }}
+					margin={{ top: 10, left: 50, right: 90, bottom: 140 }}
 				>
 					<AnimatedAxis
 						orientation="left"
@@ -51,7 +51,11 @@ export const Trends = () => {
 						orientation="bottom"
 						label="time (local timezone)"
 						strokeWidth={1}
+						labelOffset={100}
 						labelClassName={trendsLabel}
+						tickLabelProps={() => ({
+							transform: "translate(40 40) rotate(45) ",
+						})}
 					/>
 					<AnimatedLineSeries
 						dataKey="Page views per hour"
