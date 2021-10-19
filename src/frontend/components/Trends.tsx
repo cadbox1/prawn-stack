@@ -40,7 +40,7 @@ export const Trends = () => {
 				<XYChart
 					xScale={{ type: "band", padding: -1 }}
 					yScale={{ type: "linear" }}
-					margin={{ top: 10, left: 50, right: 90, bottom: 140 }}
+					margin={{ top: 20, left: 50, right: 90, bottom: 140 }}
 				>
 					<AnimatedAxis
 						orientation="left"
@@ -65,7 +65,6 @@ export const Trends = () => {
 					<Tooltip
 						snapTooltipToDatumX
 						snapTooltipToDatumY
-						showHorizontalCrosshair
 						showVerticalCrosshair
 						showSeriesGlyphs
 						renderTooltip={({ tooltipData, colorScale }) => (
