@@ -5,6 +5,7 @@ export const [lightThemeClass, vars] = createTheme({
 		background: "white",
 		text: "black",
 		primary: "hsl(220deg 100% 54%)",
+		secondary: "hsl(288deg 80% 55%)",
 		muted: "hsl(0deg 0% 80%)",
 		grey: "hsl(210deg 29% 97%)",
 	},
@@ -18,7 +19,8 @@ export const darkThemeClass = createTheme(vars, {
 	color: {
 		background: "black",
 		text: "white",
-		primary: "hsl(190deg 100% 50%)",
+		primary: "hsl(190deg 80% 50%)",
+		secondary: "hsl(288deg 80% 45%)",
 		muted: "hsl(0deg 0% 30%)",
 		grey: "hsl(210deg 29% 10%)",
 	},
@@ -178,11 +180,16 @@ export const headingAnchorSpanClass = style({
 	},
 });
 
+globalStyle(".visx-path", {
+	stroke: vars.color.secondary,
+});
+
 export const trendsLabel = style([
 	fontBase,
 	{
 		fontSize: "12px",
 		fontWeight: 500,
+		stroke: vars.color.text,
 		fill: vars.color.text,
 	},
 ]);
