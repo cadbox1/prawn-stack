@@ -189,7 +189,6 @@ export const trendsLabel = style([
 	{
 		fontSize: "12px",
 		fontWeight: 500,
-		stroke: vars.color.text,
 		fill: vars.color.text,
 	},
 ]);
