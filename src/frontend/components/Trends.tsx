@@ -44,7 +44,7 @@ export const Trends = () => {
 			<P>Page views per hour over time</P>
 			<div style={{ height: "500px" }}>
 				<XYChart
-					xScale={{ type: "band", padding: -1 }}
+					xScale={{ type: "point" }} // maybe should be time but that breaks the tooltip
 					yScale={{ type: "linear" }}
 					margin={{ top: 20, left: 50, right: 90, bottom: 140 }}
 				>

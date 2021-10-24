@@ -1,8 +1,26 @@
 import { createTheme, globalStyle, style } from "@vanilla-extract/css";
 
-export const [themeClass, vars] = createTheme({
+export const [lightThemeClass, vars] = createTheme({
 	color: {
-		brand: "blue",
+		background: "white",
+		text: "black",
+		primary: "hsl(220deg 100% 54%)",
+		muted: "hsl(0deg 0% 80%)",
+		grey: "hsl(210deg 29% 97%)",
+	},
+	font: {
+		heading: "Source Sans Pro",
+		body: "Source Sans Pro",
+	},
+});
+
+export const darkThemeClass = createTheme(vars, {
+	color: {
+		background: "black",
+		text: "white",
+		primary: "hsl(190deg 100% 50%)",
+		muted: "hsl(0deg 0% 30%)",
+		grey: "hsl(210deg 29% 10%)",
 	},
 	font: {
 		heading: "Source Sans Pro",
@@ -13,19 +31,22 @@ export const [themeClass, vars] = createTheme({
 globalStyle(`body`, {
 	margin: 0,
 	boxSizing: "border-box",
+	background: vars.color.background,
 });
 
 export const containerClass = style({
 	maxWidth: "800px",
 	margin: "0 auto",
 	padding: "0 18px",
+	background: vars.color.background,
 });
 
 export const headingClass = style({
-	fontFamily: vars.font.heading,
-	fontWeight: "bold",
 	marginTop: "32px",
 	marginBottom: "12px",
+	fontFamily: vars.font.heading,
+	fontWeight: "bold",
+	color: vars.color.text,
 });
 
 export const h1Class = style([
@@ -52,6 +73,7 @@ export const h3Class = style([
 
 export const fontBase = style({
 	fontFamily: vars.font.body,
+	color: vars.color.text,
 });
 
 export const baseClass = style([
@@ -74,6 +96,7 @@ export const aClass = style([
 	baseClass,
 	{
 		textDecoration: "none",
+		color: vars.color.primary,
 	},
 ]);
 
@@ -110,23 +133,37 @@ export const preClass = style({
 	marginTop: "8px",
 	marginBottom: "12px",
 	padding: "16px",
-	backgroundColor: "hsl(210deg 29% 97%)",
+	color: vars.color.text,
+	backgroundColor: vars.color.grey,
 	overflow: "auto",
 });
 
 export const codeClass = style({
 	fontSize: "14px",
 	padding: "4px 6px",
-	backgroundColor: "hsl(210deg 29% 97%)",
+	color: vars.color.text,
+	backgroundColor: vars.color.grey,
 });
 
 export const imgClass = style({
 	maxWidth: "100%",
 });
 
+export const themeToggleClass = style({
+	float: "right",
+	fontSize: "26px",
+	padding: "2px 8px",
+	borderWidth: "3px",
+	borderStyle: "solid",
+	borderColor: vars.color.muted,
+	background: "transparent",
+	borderRadius: "10px",
+	userSelect: "none",
+});
+
 export const headingAnchorClass = style({
 	float: "left",
-	marginLeft: "-16px",
+	marginLeft: "-13px",
 	textDecoration: "none",
 });
 
@@ -146,5 +183,6 @@ export const trendsLabel = style([
 	{
 		fontSize: "12px",
 		fontWeight: 500,
+		fill: vars.color.text,
 	},
 ]);
