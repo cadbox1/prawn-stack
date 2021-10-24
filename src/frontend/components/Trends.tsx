@@ -11,6 +11,8 @@ import {
 import { format } from "date-fns";
 import { trendsLabel } from "./core/styles.css";
 
+const datetimeFormat = "p dd-MM-yyyy";
+
 const accessors = {
 	xAccessor: (d) => d.x,
 	yAccessor: (d) => d.y,
@@ -33,10 +35,10 @@ export const Trends = () => {
 				}))
 				.sort((a, b) => a.x - b.x)
 				.map(({ x, y }) => ({
-					x: format(x, "p dd-MM-yyyy"),
+					x: format(x, datetimeFormat),
 					y,
 				}))
-		: [];
+		: [{ x: format(new Date(), datetimeFormat), y: 0 }];
 
 	return (
 		<div>
