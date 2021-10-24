@@ -151,7 +151,7 @@ export const imgClass = style({
 
 export const themeToggleClass = style({
 	float: "right",
-	fontSize: "26px",
+	fontSize: "24px",
 	padding: "2px 8px",
 	borderWidth: "3px",
 	borderStyle: "solid",
