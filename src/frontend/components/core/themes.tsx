@@ -1,18 +1,9 @@
 import { useState, useEffect } from "react";
-import {
-	darkThemeClass,
-	lightThemeClass,
-	themeToggleClass,
-} from "./styles.css";
+import { themeToggleClass } from "./styles.css";
 
 const themeKey = `theme`;
 
-const themes = {
-	default: { class: lightThemeClass, label: `🌞` },
-	dark: { class: darkThemeClass, label: `🌛` },
-};
-
-function getInitialTheme() {
+function getInitialTheme(themes) {
 	try {
 		const localStorageTheme = localStorage.getItem(themeKey);
 		if (!localStorageTheme) {
@@ -31,20 +22,20 @@ function getInitialTheme() {
 	}
 }
 
-function setTheme(theme: string) {
+function setTheme(themes, theme: string) {
 	localStorage.setItem(themeKey, theme);
 	const initialClass = themes[theme].class;
 	document.documentElement.className = initialClass;
 }
 
-export function setupInitialTheme() {
+export function setupInitialTheme(themes) {
 	try {
-		const initialTheme = getInitialTheme();
-		setTheme(initialTheme);
+		const initialTheme = getInitialTheme(themes);
+		setTheme(themes, initialTheme);
 	} catch (e) {}
 }
 
-export const ThemeToggle = () => {
+export const ThemeToggle = ({ themes }) => {
 	const [currentTheme, setCurrentTheme] = useState(`default`);
 
 	useEffect(() => {
@@ -59,7 +50,7 @@ export const ThemeToggle = () => {
 	const nextTheme = keys[(keys.indexOf(currentTheme) + 1) % keys.length];
 
 	const handleSetTheme = () => {
-		setTheme(nextTheme);
+		setTheme(themes, nextTheme);
 		setCurrentTheme(nextTheme);
 	};
 
