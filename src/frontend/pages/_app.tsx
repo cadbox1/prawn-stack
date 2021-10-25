@@ -1,6 +1,6 @@
 import { MdxProvider } from "../components/core/MdxProvider";
 import { Container } from "../components/core/Container";
-import { setupInitialTheme, ThemeToggle } from "../components/core/themes";
+import { ThemeToggle } from "../components/core/themes";
 import { darkThemeClass, lightThemeClass } from "../components/core/styles.css";
 import "@fontsource/source-sans-pro/400.css";
 import "@fontsource/source-sans-pro/600.css";
@@ -9,8 +9,6 @@ export const themes = {
 	default: { class: lightThemeClass, label: `🌞` },
 	dark: { class: darkThemeClass, label: `🌛` },
 };
-
-setupInitialTheme(themes);
 
 const App = ({ Component, pageProps }) => (
 	<MdxProvider>

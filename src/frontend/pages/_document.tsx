@@ -1,4 +1,6 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
+import { InitialiseTheme } from "../components/core/themes";
+import { themes } from "./_app";
 
 export default class MyDocument extends Document {
 	static async getInitialProps(ctx: any) {
@@ -16,6 +18,7 @@ export default class MyDocument extends Document {
 					/>
 				</Head>
 				<body>
+					<InitialiseTheme themes={themes} />
 					<Main />
 					<NextScript />
 				</body>
