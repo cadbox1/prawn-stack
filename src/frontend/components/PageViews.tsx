@@ -13,7 +13,7 @@ export const PageViews = () => {
 				home.error
 					? "Error loading page views"
 					: !home.data
-					? "loading..."
+					? "..."
 					: home.data.pageViews
 			}`}
 		</H1>
