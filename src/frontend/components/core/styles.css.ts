@@ -5,8 +5,8 @@ export const [lightThemeClass, vars] = createTheme({
 		background: "white",
 		text: "black",
 		primary: "hsl(220deg 100% 54%)",
-		secondary: "hsl(288deg 80% 55%)",
-		muted: "hsl(0deg 0% 80%)",
+		secondary: "hsl(349deg 100% 72%)",
+		muted: "hsl(0deg 0% 60%)",
 		grey: "hsl(210deg 29% 97%)",
 	},
 	font: {
@@ -19,9 +19,9 @@ export const darkThemeClass = createTheme(vars, {
 	color: {
 		background: "black",
 		text: "white",
-		primary: "hsl(190deg 80% 50%)",
-		secondary: "hsl(288deg 80% 45%)",
-		muted: "hsl(0deg 0% 30%)",
+		primary: "hsl(185deg 100% 50%)",
+		secondary: "hsl(290deg 65% 55%)",
+		muted: "hsl(0deg 0% 45%)",
 		grey: "hsl(210deg 29% 10%)",
 	},
 	font: {
@@ -180,11 +180,31 @@ export const headingAnchorSpanClass = style({
 	},
 });
 
-globalStyle(".visx-path", {
+export const trendsLineClass = style({
 	stroke: vars.color.secondary,
 });
 
-export const trendsLabel = style([
+export const trendsAxisLineClass = style({
+	stroke: vars.color.muted,
+	strokeWidth: 1,
+	shapeRendering: "auto",
+});
+
+export const trendsAxisTickClass = style({});
+
+// would be nice if visx let us put a class on this directly
+// would be nice if vanilla-extract let you extend classes in global styles
+globalStyle(`${trendsAxisTickClass} text`, {
+	fontFamily: vars.font.body,
+	fill: vars.color.muted,
+});
+
+// same comment as above
+globalStyle(`${trendsAxisTickClass} line`, {
+	stroke: vars.color.muted,
+});
+
+export const trendsAxisLabelClass = style([
 	fontBase,
 	{
 		fontSize: "12px",

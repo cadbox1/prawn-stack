@@ -9,7 +9,12 @@ import {
 	Tooltip,
 } from "@visx/xychart";
 import { format } from "date-fns";
-import { trendsLabel } from "./core/styles.css";
+import {
+	trendsAxisLineClass,
+	trendsAxisLabelClass,
+	trendsLineClass,
+	trendsAxisTickClass,
+} from "./core/styles.css";
 
 const datetimeFormat = "p dd-MM-yyyy";
 
@@ -53,35 +58,35 @@ export const Trends = () => {
 					<AnimatedAxis
 						orientation="left"
 						label="page views per hour"
-						labelClassName={trendsLabel}
+						axisLineClassName={trendsAxisLineClass}
+						tickClassName={trendsAxisTickClass}
+						labelClassName={trendsAxisLabelClass}
 					/>
 					<AnimatedAxis
 						orientation="bottom"
 						label="time (local timezone)"
-						strokeWidth={1}
 						labelOffset={100}
-						labelClassName={trendsLabel}
+						axisLineClassName={trendsAxisLineClass}
+						tickClassName={trendsAxisTickClass}
+						labelClassName={trendsAxisLabelClass}
 						tickLabelProps={() => ({
-							transform: "translate(40 40) rotate(45) ",
+							transform: "translate(31 35) rotate(45) ",
 						})}
 					/>
 					<AnimatedLineSeries
 						dataKey="Page views per hour"
 						data={data}
+						className={trendsLineClass}
+						color="red"
 						{...accessors}
 					/>
 					<Tooltip
 						snapTooltipToDatumX
 						snapTooltipToDatumY
 						showVerticalCrosshair
-						showSeriesGlyphs
-						renderTooltip={({ tooltipData, colorScale }) => (
+						renderTooltip={({ tooltipData }) => (
 							<div>
-								<div
-									style={{ color: colorScale(tooltipData.nearestDatum.key) }}
-								>
-									{tooltipData.nearestDatum.key}
-								</div>
+								<div>{tooltipData.nearestDatum.key}</div>
 								<div>{accessors.yAccessor(tooltipData.nearestDatum.datum)}</div>
 								<div>{accessors.xAccessor(tooltipData.nearestDatum.datum)}</div>
 							</div>
