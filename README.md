@@ -39,6 +39,7 @@ A modern page view counter to see unpopular my project is. Powered by a PRAwN st
    - PgAdmin to access the Postgres database. Available at [http://localhost:5050/](http://localhost:5050/).
    - Node API development server. Available at [http://localhost:3001/api/](http://localhost:3001/api/).
    - NextJS development server for the frontend. Available at [http://localhost:3000](http://localhost:3000.
+1. Go to [http://localhost:3000/](http://localhost:3000/).
 
 Going forward, you can make this faster by skipping the build step. You only need it if your dependencies change.
 

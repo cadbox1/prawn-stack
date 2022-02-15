@@ -1,7 +1,6 @@
 import useSWR from "swr";
 import { fetcher } from "./fetcher";
-import { H2 } from "./core/H2";
-import { P } from "./core/P";
+import { H2, P } from "cadells-vanilla-components";
 import {
 	AnimatedAxis,
 	AnimatedLineSeries,
@@ -14,7 +13,7 @@ import {
 	trendsAxisLabelClass,
 	trendsLineClass,
 	trendsAxisTickClass,
-} from "./core/styles.css";
+} from "./styles.css";
 
 const datetimeFormat = "p dd-MM-yyyy";
 

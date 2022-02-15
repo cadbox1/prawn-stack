@@ -1,6 +1,5 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
-import { InitialiseTheme } from "../components/core/themes";
-import { themes } from "./_app";
+import { InitialiseTheme } from "cadells-vanilla-components";
 
 export default class MyDocument extends Document {
 	static async getInitialProps(ctx: any) {
@@ -18,7 +17,7 @@ export default class MyDocument extends Document {
 					/>
 				</Head>
 				<body>
-					<InitialiseTheme themes={themes} />
+					<InitialiseTheme />
 					<Main />
 					<NextScript />
 				</body>
