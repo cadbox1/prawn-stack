@@ -21,7 +21,7 @@ A modern page view counter to see unpopular my project is. Powered by a PRAwN st
 - `yarn test` perform the jest unit tests.
 - `yarn build` build the NextJS frontend so it's ready to deploy.
 - `yarn cdk bootstrap --profile account-name` prepare the AWS region for cdk deployments.
-- `yarn deploy --profile account-name` build the frontend and deploy the cdk stack.
+- `yarn deploy --profile account-name` build the app and deploy the cdk stack.
 - `yarn cdk destroy --profile account-name` destroy the deployment.
 
 ## Running Locally
