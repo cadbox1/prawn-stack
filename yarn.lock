@@ -3218,9 +3218,9 @@ cache-base@^1.0.1:
     unset-value "^1.0.0"
 
 cadells-vanilla-components@^0.3.11:
-  version "0.3.11"
-  resolved "https://registry.yarnpkg.com/cadells-vanilla-components/-/cadells-vanilla-components-0.3.11.tgz#4905305e9ee78a514bf8de2225471b2ae1f6d348"
-  integrity sha512-1k8hLRr8ABDB9emlurgNqx6iisJ0aG24Z44LiZUavC1KZ8eVgvAROMabtlqSWcWTRnWL3lzkU8Ga/vmL3XM6Lg==
+  version "0.3.12"
+  resolved "https://registry.yarnpkg.com/cadells-vanilla-components/-/cadells-vanilla-components-0.3.12.tgz#175f9fb4a73e141dee889acbd99ffbae5a6fe42b"
+  integrity sha512-AhtMW2GJJ3QII1KB/uuiScK5scgxt1mAo6dp23QU9xBxWvfQrqRdtT84/YU1apGTO1F1PUS8+tqu6bjsS38Opw==
   dependencies:
     slugify "^1.6.5"
 
