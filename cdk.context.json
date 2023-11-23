@@ -10,5 +10,11 @@
     "ap-southeast-2b",
     "ap-southeast-2c"
   ],
-  "ami:account=680342813135:filters.image-type.0=machine:filters.name.0=amzn-ami-vpc-nat-*:filters.state.0=available:owners.0=amazon:region=ap-southeast-2": "ami-015aff2ceba6d2b6e"
+  "ami:account=680342813135:filters.image-type.0=machine:filters.name.0=amzn-ami-vpc-nat-*:filters.state.0=available:owners.0=amazon:region=ap-southeast-2": "ami-015aff2ceba6d2b6e",
+  "availability-zones:account=556185703280:region=ap-southeast-2": [
+    "ap-southeast-2a",
+    "ap-southeast-2b",
+    "ap-southeast-2c"
+  ],
+  "ami:account=556185703280:filters.image-type.0=machine:filters.name.0=amzn-ami-vpc-nat-*:filters.state.0=available:owners.0=amazon:region=ap-southeast-2": "ami-0dd75c2cdbbfe8681"
 }

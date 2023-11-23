@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 import "source-map-support/register";
-import * as cdk from "@aws-cdk/core";
+import { App } from "aws-cdk-lib";
 import { CertificateStack, PrawnStack } from "../lib/prawn-stack";
 
 const config = {
 	region: "ap-southeast-2",
 	customDomain: "prawn.cadell.dev",
-	yourPublicIpAddress: "180.150.80.84/32",
+	yourPublicIpAddress: "84.71.188.98/32",
 	emailAddressForBudget: "prawn@cadell.dev",
 	xRayTracingEnabled: false,
 	certificateArn:
-		"arn:aws:acm:us-east-1:680342813135:certificate/94c373a7-b3fe-4975-bb4a-fc48d4200411",
+		"arn:aws:acm:us-east-1:556185703280:certificate/f4da0767-bcda-4fac-b4c4-5edbf590ab2b",
 };
 
-const app = new cdk.App();
+const app = new App();
 
 new CertificateStack(app, "CertificateStack", {
 	customDomain: config.customDomain,

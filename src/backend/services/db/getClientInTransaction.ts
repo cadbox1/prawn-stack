@@ -1,21 +1,21 @@
-import pgRaw, { Client, PoolClient } from "pg";
+import pgRaw, { Client, ClientConfig, PoolClient } from "pg";
 import AWSXRay from "aws-xray-sdk";
-import AwsSdk from "aws-sdk";
+import { SecretsManager } from "@aws-sdk/client-secrets-manager";
 
 const developmentEnvironment = process.env.NODE_ENV === "development";
 
 let pg = pgRaw;
-let AWS, secretManager: AwsSdk.SecretsManager;
+let AWS, secretManager: SecretsManager;
 
 if (!developmentEnvironment) {
-	AWS = AWSXRay.captureAWS(AwsSdk);
-	secretManager = new AWS.SecretsManager();
+	secretManager = new SecretsManager();
+	AWS = AWSXRay.captureAWSv3Client(secretManager);
 
 	// @ts-ignore
 	pg = AWSXRay.capturePostgres(pgRaw);
 }
 
-const developmentDbConnectionConfig = {
+const developmentDbConnectionConfig: ClientConfig = {
 	host: "postgres",
 	user: "postgres",
 	password: "changeme",
@@ -25,7 +25,9 @@ const developmentDbConnectionConfig = {
 
 let secretCredentials: string;
 
-export async function getDbConnectionConfig({ refetchSecret = false } = {}) {
+export async function getDbConnectionConfig({
+	refetchSecret = false,
+} = {}): Promise<ClientConfig> {
 	if (developmentEnvironment) {
 		return developmentDbConnectionConfig;
 	}
@@ -37,9 +39,9 @@ export async function getDbConnectionConfig({ refetchSecret = false } = {}) {
 	}
 
 	if (!secretCredentials || refetchSecret) {
-		const secretRdsData = await secretManager
-			.getSecretValue({ SecretId: rdsSecretName })
-			.promise();
+		const secretRdsData = await secretManager.getSecretValue({
+			SecretId: rdsSecretName,
+		});
 
 		if (!secretRdsData.SecretString) {
 			throw new Error("Secret RDS data not found");
@@ -56,6 +58,7 @@ export async function getDbConnectionConfig({ refetchSecret = false } = {}) {
 		password,
 		database: "postgres",
 		port: 5432,
+		ssl: { rejectUnauthorized: false },
 	};
 }
 

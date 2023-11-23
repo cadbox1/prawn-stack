@@ -1,6 +1,6 @@
-FROM mhart/alpine-node:14
+FROM mhart/alpine-node:20
 
 WORKDIR /home/node/app
 
-COPY package.json yarn.lock ./
-RUN yarn
+COPY package.json package-lock.lock ./
+RUN npm install

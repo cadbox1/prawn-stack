@@ -1,25 +1,35 @@
-import * as cdk from "@aws-cdk/core";
-import * as rds from "@aws-cdk/aws-rds";
-import * as ec2 from "@aws-cdk/aws-ec2";
-import * as secrets from "@aws-cdk/aws-secretsmanager";
-import * as events from "@aws-cdk/aws-events";
-import * as targets from "@aws-cdk/aws-events-targets";
-import * as lambda from "@aws-cdk/aws-lambda";
-import * as lambdaNodeJs from "@aws-cdk/aws-lambda-nodejs";
-import * as apigw from "@aws-cdk/aws-apigatewayv2";
-import * as integrations from "@aws-cdk/aws-apigatewayv2-integrations";
-import * as s3 from "@aws-cdk/aws-s3";
-import * as s3deploy from "@aws-cdk/aws-s3-deployment";
-import * as cloudfront from "@aws-cdk/aws-cloudfront";
-import * as budgets from "@aws-cdk/aws-budgets";
-import * as certificatemanager from "@aws-cdk/aws-certificatemanager";
+import { Construct } from "constructs";
+import {
+	Stack,
+	StackProps,
+	CfnOutput,
+	Duration,
+	RemovalPolicy,
+} from "aws-cdk-lib";
+import * as apigatewayv2integrations from "@aws-cdk/aws-apigatewayv2-integrations-alpha";
+import * as apigatewayv2 from "@aws-cdk/aws-apigatewayv2-alpha";
+import {
+	aws_certificatemanager as certificatemanager,
+	aws_ec2 as ec2,
+	aws_secretsmanager as secretsmanager,
+	aws_rds as rds,
+	aws_lambda_nodejs as lambdanodejs,
+	aws_lambda as lambda,
+	aws_events as events,
+	aws_events_targets as eventstargets,
+	aws_s3 as s3,
+	aws_cloudfront as cloudfront,
+	aws_s3_deployment as s3deployment,
+	aws_budgets as budgets,
+} from "aws-cdk-lib";
+import { Effect, PolicyStatement, StarPrincipal } from "aws-cdk-lib/aws-iam";
 
 interface CertificateProps {
 	customDomain: string;
 }
 
-export class CertificateStack extends cdk.Stack {
-	constructor(scope: cdk.Construct, id: string, props: CertificateProps) {
+export class CertificateStack extends Stack {
+	constructor(scope: Construct, id: string, props: CertificateProps) {
 		super(scope, id, {
 			env: { region: "us-east-1" }, // must be in us-east-1 for cloudfront
 		});
@@ -36,16 +46,16 @@ export class CertificateStack extends cdk.Stack {
 		);
 
 		const certificateArn = certificate.certificateArn;
-		new cdk.CfnOutput(this, "CertificateArn", {
+		new CfnOutput(this, "CertificateArn", {
 			value: certificateArn,
 		});
-		new cdk.CfnOutput(this, "Instructions", {
+		new CfnOutput(this, "Instructions", {
 			value: "Add the CertificateArn to `bin/prawn-cdk.ts`",
 		});
 	}
 }
 
-interface PrawnStackProps extends cdk.StackProps {
+interface PrawnStackProps extends StackProps {
 	region: string;
 	customDomain: string;
 	yourPublicIpAddress: string;
@@ -54,8 +64,8 @@ interface PrawnStackProps extends cdk.StackProps {
 	certificateArn: string;
 }
 
-export class PrawnStack extends cdk.Stack {
-	constructor(scope: cdk.Construct, id: string, props: PrawnStackProps) {
+export class PrawnStack extends Stack {
+	constructor(scope: Construct, id: string, props: PrawnStackProps) {
 		super(scope, id, props);
 
 		const {
@@ -86,7 +96,7 @@ export class PrawnStack extends cdk.Stack {
 		// Create database credentials
 		const databaseUsername = "PrawnStackLambdaUser"; // no hyphens allowed
 
-		const databaseCredentialsSecret = new secrets.Secret(
+		const databaseCredentialsSecret = new secretsmanager.Secret(
 			this,
 			"DBCredentialsSecret",
 			{
@@ -128,21 +138,21 @@ export class PrawnStack extends cdk.Stack {
 		// Create postgres database
 		const rdsInstance = new rds.DatabaseInstance(this, "DBInstance", {
 			engine: rds.DatabaseInstanceEngine.postgres({
-				version: rds.PostgresEngineVersion.VER_12_5,
+				version: rds.PostgresEngineVersion.VER_15_4,
 			}),
 			allocatedStorage: 20, // 20 GB is part of the RDS Free Tier.
-			backupRetention: cdk.Duration.days(1), // This is also part of the RDS Free Tier.
+			backupRetention: Duration.days(1), // This is also part of the RDS Free Tier.
 			instanceType: ec2.InstanceType.of(
-				ec2.InstanceClass.BURSTABLE2,
+				ec2.InstanceClass.BURSTABLE4_GRAVITON,
 				ec2.InstanceSize.MICRO
-			), // Free Tier for 12 Months then ~$20 usd/month
+			), // Free tier for 12 months then ~$19 usd/month
 			credentials: rds.Credentials.fromSecret(databaseCredentialsSecret),
 			vpc,
 			vpcSubnets: {
 				subnetType: ec2.SubnetType.PUBLIC, // this isn't ideal but it makes connecting to the database easier
 			},
 			securityGroups: [rdsSecurityGroup],
-			removalPolicy: cdk.RemovalPolicy.DESTROY, // change this for production
+			removalPolicy: RemovalPolicy.DESTROY, // change this for production
 			deletionProtection: false, // change this for production
 		});
 
@@ -153,15 +163,15 @@ export class PrawnStack extends cdk.Stack {
 			BASE_URL: `https://${customDomain}/api`,
 		};
 
-		const lambdaApp = new lambdaNodeJs.NodejsFunction(
+		const lambdaApp = new lambdanodejs.NodejsFunction(
 			this,
 			"prawn-stack-lambda",
 			{
-				runtime: lambda.Runtime.NODEJS_14_X,
-				architectures: [lambda.Architecture.ARM_64],
+				runtime: lambda.Runtime.NODEJS_20_X,
+				architecture: lambda.Architecture.ARM_64,
 				entry: "src/backend/lambda.ts",
 				handler: "handler",
-				timeout: cdk.Duration.seconds(10),
+				timeout: Duration.seconds(10),
 				vpc: vpc,
 				securityGroups: [lambdaSecurityGroup],
 				tracing: xRayTracingEnabled
@@ -169,7 +179,9 @@ export class PrawnStack extends cdk.Stack {
 					: lambda.Tracing.DISABLED,
 				bundling: {
 					externalModules: [
-						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
+						// Use the 'aws-sdk' available in the Lambda runtime
+						"aws-sdk",
+						"@aws-sdk/client-secrets-manager",
 						"pg-native", // errors without this
 					],
 				},
@@ -178,32 +190,35 @@ export class PrawnStack extends cdk.Stack {
 		);
 		databaseCredentialsSecret.grantRead(lambdaApp);
 
-		const defaultIntegration = new integrations.LambdaProxyIntegration({
-			handler: lambdaApp,
-		});
+		const defaultIntegration = new apigatewayv2integrations.HttpLambdaIntegration(
+			"lambdaHandler",
+			lambdaApp
+		);
 
-		const httpApi = new apigw.HttpApi(this, "prawn-stack-http-api", {
+		const httpApi = new apigatewayv2.HttpApi(this, "prawn-stack-http-api", {
 			defaultIntegration,
 		});
 
-		new cdk.CfnOutput(this, "API Gateway URL", {
+		new CfnOutput(this, "API Gateway URL", {
 			value: httpApi.apiEndpoint || "",
 		});
 
 		// scheduled rollup
-		const activityHourlyRollupTrigger = new lambdaNodeJs.NodejsFunction(
+		const activityHourlyRollupTrigger = new lambdanodejs.NodejsFunction(
 			this,
 			"prawn-stack-activityHourlyRollupTrigger",
 			{
-				runtime: lambda.Runtime.NODEJS_14_X,
-				architectures: [lambda.Architecture.ARM_64],
+				runtime: lambda.Runtime.NODEJS_20_X,
+				architecture: lambda.Architecture.ARM_64,
 				entry:
 					"src/backend/services/scheduled/trigger-activity-hourly-rollup.ts",
 				handler: "handler",
-				timeout: cdk.Duration.seconds(10),
+				timeout: Duration.seconds(10),
 				bundling: {
 					externalModules: [
-						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
+						// Use the 'aws-sdk' available in the Lambda runtime
+						"aws-sdk",
+						"@aws-sdk/client-secrets-manager",
 						"pg-native", // errors without this
 					],
 				},
@@ -218,22 +233,24 @@ export class PrawnStack extends cdk.Stack {
 			}
 		);
 		activityHourlyRollupTriggerRule.addTarget(
-			new targets.LambdaFunction(activityHourlyRollupTrigger)
+			new eventstargets.LambdaFunction(activityHourlyRollupTrigger)
 		);
 
 		// scheduled pageview
-		const pageviewTrigger = new lambdaNodeJs.NodejsFunction(
+		const pageviewTrigger = new lambdanodejs.NodejsFunction(
 			this,
 			"prawn-stack-pageviewTrigger",
 			{
-				runtime: lambda.Runtime.NODEJS_14_X,
-				architectures: [lambda.Architecture.ARM_64],
+				runtime: lambda.Runtime.NODEJS_20_X,
+				architecture: lambda.Architecture.ARM_64,
 				entry: "src/backend/services/scheduled/trigger-pageview.ts",
 				handler: "handler",
-				timeout: cdk.Duration.seconds(10),
+				timeout: Duration.seconds(10),
 				bundling: {
 					externalModules: [
-						"aws-sdk", // Use the 'aws-sdk' available in the Lambda runtime
+						// Use the 'aws-sdk' available in the Lambda runtime
+						"aws-sdk",
+						"@aws-sdk/client-secrets-manager",
 						"pg-native", // errors without this
 					],
 				},
@@ -243,7 +260,9 @@ export class PrawnStack extends cdk.Stack {
 		const pageviewTriggerRule = new events.Rule(this, "Prawn hourly pageview", {
 			schedule: events.Schedule.cron({ minute: "30", hour: "*" }),
 		});
-		pageviewTriggerRule.addTarget(new targets.LambdaFunction(pageviewTrigger));
+		pageviewTriggerRule.addTarget(
+			new eventstargets.LambdaFunction(pageviewTrigger)
+		);
 
 		// ---- Frontend ----
 
@@ -253,10 +272,25 @@ export class PrawnStack extends cdk.Stack {
 			bucketName,
 			websiteIndexDocument: "index.html",
 			websiteErrorDocument: "error.html",
-			publicReadAccess: true,
-			removalPolicy: cdk.RemovalPolicy.DESTROY, // change this for production
+			removalPolicy: RemovalPolicy.DESTROY, // change this for production
 			autoDeleteObjects: true, // change this for production
+			publicReadAccess: true,
+			blockPublicAccess: {
+				blockPublicAcls: false,
+				ignorePublicAcls: false,
+				blockPublicPolicy: false,
+				restrictPublicBuckets: false,
+			},
 		});
+
+		siteBucket.addToResourcePolicy(
+			new PolicyStatement({
+				actions: ["s3:GetObject"],
+				effect: Effect.ALLOW,
+				principals: [new StarPrincipal()],
+				resources: [siteBucket.arnForObjects("*")],
+			})
+		);
 
 		const certificate = certificatemanager.Certificate.fromCertificateArn(
 			this,
@@ -291,7 +325,6 @@ export class PrawnStack extends cdk.Stack {
 						customOriginSource: {
 							domainName: `${httpApi.httpApiId}.execute-api.${this.region}.${this.urlSuffix}`,
 						},
-						originPath: "",
 						behaviors: [
 							{
 								pathPattern: "/api/*",
@@ -306,16 +339,16 @@ export class PrawnStack extends cdk.Stack {
 				],
 			}
 		);
-		new cdk.CfnOutput(this, "CloudfrontDistributionURL", {
+		new CfnOutput(this, "CloudfrontDistributionURL", {
 			value: "https://" + distribution.distributionDomainName,
 		});
-		new cdk.CfnOutput(this, "CloudfrontDistributionDomain", {
+		new CfnOutput(this, "CloudfrontDistributionDomain", {
 			value: distribution.distributionDomainName,
 		});
 
 		// Deploy site contents to S3 bucket
-		new s3deploy.BucketDeployment(this, "DeployWithInvalidation", {
-			sources: [s3deploy.Source.asset("src/frontend/out")],
+		new s3deployment.BucketDeployment(this, "DeployWithInvalidation", {
+			sources: [s3deployment.Source.asset("src/frontend/out")],
 			destinationBucket: siteBucket,
 			distribution,
 			distributionPaths: ["/*"],
