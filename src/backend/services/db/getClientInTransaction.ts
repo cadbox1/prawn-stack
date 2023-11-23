@@ -5,11 +5,10 @@ import { SecretsManager } from "@aws-sdk/client-secrets-manager";
 const developmentEnvironment = process.env.NODE_ENV === "development";
 
 let pg = pgRaw;
-let AWS, secretManager: SecretsManager;
+let secretManager: SecretsManager;
 
 if (!developmentEnvironment) {
-	secretManager = new SecretsManager();
-	AWS = AWSXRay.captureAWSv3Client(secretManager);
+	secretManager = AWSXRay.captureAWSv3Client(new SecretsManager());
 
 	// @ts-ignore
 	pg = AWSXRay.capturePostgres(pgRaw);
@@ -58,7 +57,6 @@ export async function getDbConnectionConfig({
 		password,
 		database: "postgres",
 		port: 5432,
-		ssl: { rejectUnauthorized: false },
 	};
 }
 

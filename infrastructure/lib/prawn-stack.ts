@@ -23,6 +23,7 @@ import {
 	aws_budgets as budgets,
 } from "aws-cdk-lib";
 import { Effect, PolicyStatement, StarPrincipal } from "aws-cdk-lib/aws-iam";
+import { NodejsFunctionProps } from "aws-cdk-lib/aws-lambda-nodejs";
 
 interface CertificateProps {
 	customDomain: string;
@@ -86,7 +87,7 @@ export class PrawnStack extends Stack {
 			natGatewayProvider: ec2.NatProvider.instance({
 				// free tier
 				instanceType: ec2.InstanceType.of(
-					ec2.InstanceClass.T2,
+					ec2.InstanceClass.T3,
 					ec2.InstanceSize.MICRO
 				),
 			}),
@@ -135,17 +136,26 @@ export class PrawnStack extends Stack {
 			"Allow Connections from Static IP Address"
 		);
 
+		const rdsInstanceEngine = rds.DatabaseInstanceEngine.postgres({
+			version: rds.PostgresEngineVersion.VER_15,
+		});
+
+		const parameterGroup = new rds.ParameterGroup(this, "ParameterGroup", {
+			engine: rdsInstanceEngine,
+			parameters: {
+				"rds.force_ssl": "0", // it's slow
+			},
+		});
+
 		// Create postgres database
 		const rdsInstance = new rds.DatabaseInstance(this, "DBInstance", {
-			engine: rds.DatabaseInstanceEngine.postgres({
-				version: rds.PostgresEngineVersion.VER_15_4,
-			}),
-			allocatedStorage: 20, // 20 GB is part of the RDS Free Tier.
-			backupRetention: Duration.days(1), // This is also part of the RDS Free Tier.
+			engine: rdsInstanceEngine,
+			allocatedStorage: 20, // 20gb in the free tier
+			backupRetention: Duration.days(1), // part of the free tier
 			instanceType: ec2.InstanceType.of(
 				ec2.InstanceClass.BURSTABLE4_GRAVITON,
 				ec2.InstanceSize.MICRO
-			), // Free tier for 12 months then ~$19 usd/month
+			), // free tier for 12 months then ~$19 usd/month
 			credentials: rds.Credentials.fromSecret(databaseCredentialsSecret),
 			vpc,
 			vpcSubnets: {
@@ -154,6 +164,7 @@ export class PrawnStack extends Stack {
 			securityGroups: [rdsSecurityGroup],
 			removalPolicy: RemovalPolicy.DESTROY, // change this for production
 			deletionProtection: false, // change this for production
+			parameterGroup,
 		});
 
 		// Create Lambda and API Gateway
@@ -163,29 +174,31 @@ export class PrawnStack extends Stack {
 			BASE_URL: `https://${customDomain}/api`,
 		};
 
+		const commonLambdaConfig: NodejsFunctionProps = {
+			runtime: lambda.Runtime.NODEJS_20_X,
+			architecture: lambda.Architecture.ARM_64,
+			tracing: xRayTracingEnabled
+				? lambda.Tracing.ACTIVE
+				: lambda.Tracing.DISABLED,
+			bundling: {
+				externalModules: [
+					"@aws-sdk/client-secrets-manager", // available at runtime
+					"pg-native", // errors without this
+				],
+			},
+			timeout: Duration.seconds(10),
+			environment,
+		};
+
 		const lambdaApp = new lambdanodejs.NodejsFunction(
 			this,
 			"prawn-stack-lambda",
 			{
-				runtime: lambda.Runtime.NODEJS_20_X,
-				architecture: lambda.Architecture.ARM_64,
 				entry: "src/backend/lambda.ts",
 				handler: "handler",
-				timeout: Duration.seconds(10),
 				vpc: vpc,
 				securityGroups: [lambdaSecurityGroup],
-				tracing: xRayTracingEnabled
-					? lambda.Tracing.ACTIVE
-					: lambda.Tracing.DISABLED,
-				bundling: {
-					externalModules: [
-						// Use the 'aws-sdk' available in the Lambda runtime
-						"aws-sdk",
-						"@aws-sdk/client-secrets-manager",
-						"pg-native", // errors without this
-					],
-				},
-				environment,
+				...commonLambdaConfig,
 			}
 		);
 		databaseCredentialsSecret.grantRead(lambdaApp);
@@ -208,21 +221,10 @@ export class PrawnStack extends Stack {
 			this,
 			"prawn-stack-activityHourlyRollupTrigger",
 			{
-				runtime: lambda.Runtime.NODEJS_20_X,
-				architecture: lambda.Architecture.ARM_64,
 				entry:
 					"src/backend/services/scheduled/trigger-activity-hourly-rollup.ts",
 				handler: "handler",
-				timeout: Duration.seconds(10),
-				bundling: {
-					externalModules: [
-						// Use the 'aws-sdk' available in the Lambda runtime
-						"aws-sdk",
-						"@aws-sdk/client-secrets-manager",
-						"pg-native", // errors without this
-					],
-				},
-				environment,
+				...commonLambdaConfig,
 			}
 		);
 		const activityHourlyRollupTriggerRule = new events.Rule(
@@ -241,24 +243,13 @@ export class PrawnStack extends Stack {
 			this,
 			"prawn-stack-pageviewTrigger",
 			{
-				runtime: lambda.Runtime.NODEJS_20_X,
-				architecture: lambda.Architecture.ARM_64,
 				entry: "src/backend/services/scheduled/trigger-pageview.ts",
 				handler: "handler",
-				timeout: Duration.seconds(10),
-				bundling: {
-					externalModules: [
-						// Use the 'aws-sdk' available in the Lambda runtime
-						"aws-sdk",
-						"@aws-sdk/client-secrets-manager",
-						"pg-native", // errors without this
-					],
-				},
-				environment,
+				...commonLambdaConfig,
 			}
 		);
 		const pageviewTriggerRule = new events.Rule(this, "Prawn hourly pageview", {
-			schedule: events.Schedule.cron({ minute: "30", hour: "*" }),
+			schedule: events.Schedule.cron({ minute: "0", hour: "*" }),
 		});
 		pageviewTriggerRule.addTarget(
 			new eventstargets.LambdaFunction(pageviewTrigger)

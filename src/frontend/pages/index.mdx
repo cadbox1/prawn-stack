@@ -27,14 +27,6 @@ We're also using Typescript and NextJS for the frontend.
 - Easy to deploy with AWS CDK.
 - Almost completely in the AWS Free Tier. Turns out this is actually quite difficult with RDS and Lambda.
 
-## No Longer Available
-
-My free tier has run out once again and I don't feel like setting up another account right now.
-
-Here's the bill post-free tier.
-
-![aws bill post-free tier](/assets/bill-post-free-tier.png)
-
 ## Design
 
 ![aws infrastructure](/assets/PRAwN%20Stack.png)
@@ -78,9 +70,9 @@ I went with the NAT Instance because thankfully [CDK makes it easy](https://docs
 
 The only thing you have to pay for is Secrets Manager which is $0.4/month.
 
-When the free tier ends after 12 months you could move this onto a t3.micro for rds at $0.028/h, $21/month) and a t3.nano for ec2 (used as a cheap NAT) at $0.0066/h, $4.95/month.
-
 There's also a budget configured with cdk to alert you when you spend more than $1 usd to remind you when the free tier ends.
+
+After the free tier ends it will cost $40 usd/month.
 
 ## Load Testing
 
@@ -165,6 +157,5 @@ I wanted to see if I could create a stack with similar qualities with more moder
 - [cadbox1/internal-magic-links-aws-cdk](https://github.com/cadbox1/internal-magic-links-aws-cdk).
 - [cadbox1/node-api-2020](https://github.com/cadbox1/node-api-2020).
 - [cdk-patterns-serverless/the-rds-proxy](https://github.com/cdk-patterns/serverless/tree/main/the-rds-proxy).
-- [wclr/ts-node-dev](ts-node-dev).
 - [vendia/serverless-express](https://github.com/vendia/serverless-express).
 - [khezen/compose-postgres](https://github.com/khezen/compose-postgres)

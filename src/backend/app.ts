@@ -14,7 +14,6 @@ app.use("/api/home", homeRouter);
 app.use("/api/rollup", rollupRouter);
 app.use("/api/scheduled", scheduledRouter);
 
-// @ts-ignore
 app.get("/api", async (req, res) => {
 	res.json({ message: "Welcome to the Party!!" });
 });

@@ -8,7 +8,7 @@ const config = {
 	customDomain: "prawn.cadell.dev",
 	yourPublicIpAddress: "84.71.188.98/32",
 	emailAddressForBudget: "prawn@cadell.dev",
-	xRayTracingEnabled: false,
+	xRayTracingEnabled: true,
 	certificateArn:
 		"arn:aws:acm:us-east-1:556185703280:certificate/f4da0767-bcda-4fac-b4c4-5edbf590ab2b",
 };

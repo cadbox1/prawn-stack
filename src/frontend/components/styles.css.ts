@@ -1,5 +1,5 @@
 import { globalStyle, style } from "@vanilla-extract/css";
-import { fontBase, vars } from "cadells-vanilla-components";
+import { vars, baseClass } from "cadells-vanilla-components/dist/index.mjs";
 
 export const trendsLineClass = style({
 	stroke: vars.color.secondary,
@@ -26,7 +26,7 @@ globalStyle(`${trendsAxisTickClass} line`, {
 });
 
 export const trendsAxisLabelClass = style([
-	fontBase,
+	baseClass,
 	{
 		fontSize: "12px",
 		fontWeight: 500,
