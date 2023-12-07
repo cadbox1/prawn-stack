@@ -21,7 +21,7 @@
     "aws-xray-sdk": "^3.3.3",
     "axios": "^0.21.4",
     "body-parser": "1.19.0",
-    "cadells-vanilla-components": "^1.4.0",
+    "cadells-vanilla-components": "^1.5.3",
     "date-fns": "^2.25.0",
     "pg": "^8.11.3",
     "react": "^18.2.0",
